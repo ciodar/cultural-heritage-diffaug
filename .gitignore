@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# dotenv
+.env
+
+# virtualenv
+.venv
+venv/
+ENV/
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+# input data, saved log, checkpoints
+data/
+/runs/
+input/
+saved/
+datasets/
+
+# editor, os cache directory
+.vscode/
+.idea/
+__MACOSX/
+
