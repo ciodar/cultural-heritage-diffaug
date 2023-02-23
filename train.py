@@ -26,7 +26,7 @@ def main(config):
     valid_data_loader = config.init_obj('valid_data_loader', module_data)
 
     # build model architecture, then print to console
-    model = config.init_ftn('arch', module_arch)()
+    model, _ = config.init_ftn('arch', module_arch)()
     logger.info(model)
 
     # prepare for (multi-device) GPU training

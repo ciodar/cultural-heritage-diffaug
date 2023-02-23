@@ -44,6 +44,13 @@
       └── ...
  ```
 
+## Results
+
+|                      | Dataset  | Rouge F1 score | BLEU score | BERT score |
+|----------------------|----------|----------------|------------|------------|
+| GIT-base (zero-shot) | Artpedia | 0.179          | 0.004      |            |
+| GIT-base (2 epochs)  | Artpedia | 0.27           | 0.006      |            |
+
 ## TODOs
 - [ ] Train on Artpedia
 - [ ] Enable train metrics

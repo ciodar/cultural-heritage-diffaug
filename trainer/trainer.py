@@ -82,17 +82,22 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                data, target = data.to(self.device), target.to(self.device)
+            for batch_idx, batch in enumerate(self.valid_data_loader):
+                input_ids, pixel_values = batch['input_ids'].to(self.device), batch['pixel_values'].to(self.device)
+                target = input_ids
 
-                output = self.model(data)
-                loss = self.criterion(output, target)
+                output = self.model(input_ids=input_ids, pixel_values=pixel_values, labels=input_ids)
+
+                if self.criterion is not None:
+                    loss = self.criterion(output, target)
+                else:
+                    loss = output.loss
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.valid_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
                     self.valid_metrics.update(met.__name__, met(output, target))
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                self.writer.add_image('input', make_grid(pixel_values.cpu(), nrow=8, normalize=True))
 
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():

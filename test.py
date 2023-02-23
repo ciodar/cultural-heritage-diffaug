@@ -2,6 +2,7 @@ import random
 
 import argparse
 import torch
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
@@ -42,9 +43,10 @@ def main(config):
     with torch.no_grad():
         for i, batch in enumerate(tqdm(dataset)):
             labels = batch[1]
-            inputs = processor(images=batch[0], text=random.sample(labels, 1), padding="max_length", return_tensors="pt")
-            #TODO: encode max_length in config
-            output = model.generate(pixel_values=inputs.pixel_values.to(device),max_length=50)
+            inputs = processor(images=batch[0], text=random.sample(labels, 1), padding="max_length",
+                               return_tensors="pt")
+            # TODO: encode max_length in config
+            output = model.generate(pixel_values=inputs.pixel_values.to(device), max_length=50)
 
             #
             # save sample images, or do something with output here
