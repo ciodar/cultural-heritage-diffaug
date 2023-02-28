@@ -1,3 +1,4 @@
+import argparse
 import pathlib as pl
 import urllib.request as req
 import shutil
@@ -37,3 +38,14 @@ def download_images(json_path, split, dst_path):
     print("Process finished. Found {} errors".format(errors))
     df.to_json(json_dir / '{}.json'.format(split), orient='index', default_handler=str)
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Downloader')
+    parser.add_argument('json_path', default=None, type=str,
+                      help='source of the json dataset (default: None)')
+    parser.add_argument('split', default=None, type=str,
+                      help='path to latest checkpoint (default: None)')
+    parser.add_argument('dst_path', default=None, type=str,
+                      help='destination path (default: None)')
+    args = parser.parse_args()
+    # custom cli options to modify configuration from default values given in json file.
+    download_images(args.json_path,args.split,args.dst_path)
