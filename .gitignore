@@ -29,6 +29,7 @@ ENV/
 
 # input data, saved log, checkpoints
 data/
+/configs/
 /runs/
 input/
 saved/
@@ -38,4 +39,5 @@ datasets/
 .vscode/
 .idea/
 __MACOSX/
+
 

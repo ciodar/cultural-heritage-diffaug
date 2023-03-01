@@ -58,7 +58,7 @@ def main(config):
                 loss = loss_fn(output, processor(text=batch[1][0], return_tensors="pt"))
                 total_loss += loss.item() * batch_size
             for i, metric in enumerate(metric_fns):
-                total_metrics[i] += metric(decoded_output, [labels]) * batch_size
+                total_metrics[i] += metric(decoded_output, labels) * batch_size
 
     n_samples = len(dataset)
     if config['loss'] is not None:

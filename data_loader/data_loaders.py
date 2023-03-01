@@ -19,7 +19,7 @@ class ArtpediaDataset(Dataset):
         with open(file) as f:
             j = json.load(f)
             self.data = list(j.values())
-
+        self.split = split
         self.image_transform = image_transform
         self.processor = processor
 
@@ -30,12 +30,11 @@ class ArtpediaDataset(Dataset):
         labels = self.data[i]['visual_sentences']
         if self.image_transform is not None:
             image = self.image_transform(image)
-        if self.processor is not None:
-            encoding = self.processor(images=image, text=random.sample(labels, 1), padding="max_length", return_tensors="pt")
+        encoding = self.processor(images=image, text=random.sample(labels, 1), padding="max_length", return_tensors="pt")
             # remove batch dimension
-            encoding = {k: v.squeeze() for k, v in encoding.items()}
-        else:
-            encoding = (image, labels)
+        encoding = {k: v.squeeze() for k, v in encoding.items()}
+        if self.split == 'test':
+            encoding['labels'] = labels
         return encoding
 
     def __len__(self):

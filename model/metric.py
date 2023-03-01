@@ -21,10 +21,10 @@ def top_k_acc(output, target, k=3):
     return correct / len(target)
 
 def bleu_score(output,labels):
-    return tmf.bleu_score(output,labels)
+    return tmf.bleu_score(output,[labels])
 
 def rouge_score(output,labels):
-    return tmf.rouge_score(output,labels)['rouge1_fmeasure']
+    return tmf.rouge_score(output,[labels])['rouge1_fmeasure']
 
 def bert_score(output,labels):
-    return tmf.bert_score(output,*labels)['f1']
+    return tmf.bert_score(output,labels)['f1']
