@@ -29,7 +29,7 @@ def download_images(json_path, split, dst_path):
             except Exception as e:
                 errors += 1
                 print("Cannot find {}, error code: {}".format(url, e.code))
-                df.drop(labels=i, axis=0)
+                df.drop(labels=i, axis=0, inplace=True)
                 continue
             else:
                 out_file = open(file_path, 'wb')
