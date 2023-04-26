@@ -1,20 +1,45 @@
 import json
-import torch
+import os
+from os import chdir
+
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 from pathlib import Path
 from itertools import repeat
 from collections import OrderedDict
+
+import torch
+
+
+# Mean and STD calculated on Imagenet
+MEAN = np.array([123.675, 116.280, 103.530]) / 255
+STD = np.array([58.395, 57.120, 57.375]) / 255
+
+def imshow(img):
+    npimg = img.numpy() * np.array(STD)[:,None,None] + np.array(MEAN)[:,None,None]
+
+    #unnormalized_image = (unnormalized_image * 255).astype(np.uint8)
+    #unnormalized_image = np.moveaxis(unnormalized_image, 0, -1)
+    #Image.fromarray(unnormalized_image)
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
 
 def ensure_dir(dirname):
     dirname = Path(dirname)
     if not dirname.is_dir():
         dirname.mkdir(parents=True, exist_ok=False)
 
-
 def read_json(fname):
     fname = Path(fname)
     with fname.open('rt') as handle:
         return json.load(handle, object_hook=OrderedDict)
+
+def make_paths_relative_to_root():
+    """Always use the same, absolute (relative to root) paths
+    which makes moving the notebooks around easier.
+    """
+    top_level = Path(__file__).parent.parent
+    os.chdir(top_level)
 
 
 def write_json(content, fname):
