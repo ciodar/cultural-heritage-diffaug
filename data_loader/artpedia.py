@@ -64,7 +64,7 @@ class ArtpediaDataset(Dataset):
 
 class ArtpediaDataModule(L.LightningDataModule):
     def __init__(self, data_dir: str = './data/', batch_size: int = 2, model_name_or_path: str = None
-                 , captions_per_image: int=10):
+                 , captions_per_image: int = 10, num_workers: int = 1):
         super().__init__()
         self.data_dir = data_dir
         self.captions_per_image = captions_per_image
@@ -72,6 +72,7 @@ class ArtpediaDataModule(L.LightningDataModule):
         self.model_name_or_path = model_name_or_path
         # for now use same batch size for train and test
         self.batch_size = batch_size
+        self.num_workers = num_workers
         # TODO: research augmentation for Image Captioning / VQA
         # TODO: Check why Resize crops image
         self.train_transform = transforms.Compose([
@@ -96,10 +97,13 @@ class ArtpediaDataModule(L.LightningDataModule):
                                            , processor=self.processor, captions_per_image=self.captions_per_image)
 
     def train_dataloader(self):
-        return DataLoader(self.train_ds, batch_size=self.batch_size, collate_fn=self.train_ds._caption_collate)
+        return DataLoader(self.train_ds, batch_size=self.batch_size, collate_fn=self.train_ds._caption_collate,
+                          num_workers=self.num_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.valid_ds, batch_size=self.batch_size, collate_fn=self.valid_ds._caption_collate)
+        return DataLoader(self.valid_ds, batch_size=self.batch_size, collate_fn=self.valid_ds._caption_collate,
+                          num_workers=self.num_workers)
 
     def test_dataloader(self):
-        return DataLoader(self.test_ds, batch_size=self.batch_size, collate_fn=self.test_ds._caption_collate)
+        return DataLoader(self.test_ds, batch_size=self.batch_size, collate_fn=self.test_ds._caption_collate,
+                          num_workers=self.num_workers)
