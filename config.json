@@ -51,7 +51,6 @@
     },
     "loss": null,
     "metrics": [
-        "bleu_score", "rouge_score"
     ],
     "lr_scheduler": {
         "type": "StepLR",
