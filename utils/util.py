@@ -1,16 +1,10 @@
-import json
+import functools
 import os
-from os import chdir
-
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
-from itertools import repeat
-from collections import OrderedDict
 
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
-
 
 # Mean and STD calculated on Imagenet
 MEAN = np.array([123.675, 116.280, 103.530]) / 255
@@ -53,3 +47,9 @@ def prepare_device(n_gpu_use):
     device = torch.device('cuda:0' if n_gpu_use > 0 else 'cpu')
     list_ids = list(range(n_gpu_use))
     return device, list_ids
+
+# https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties
+def rgetattr(obj, attr, *args):
+    def _getattr(obj, attr):
+        return getattr(obj, attr, *args)
+    return functools.reduce(_getattr, [obj] + attr.split('.'))

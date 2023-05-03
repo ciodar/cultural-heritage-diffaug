@@ -1,6 +1,8 @@
+from typing import Any
+
 import torch
 import torchmetrics.functional as tmf
-
+from torchmetrics import Metric
 
 def accuracy(output, target):
     with torch.no_grad():
