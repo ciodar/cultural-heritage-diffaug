@@ -88,17 +88,17 @@ class ArtpediaDataModule(L.LightningDataModule):
 
     def setup(self, stage: str) -> None:
         if stage == "fit":
-            self.train_ds = ArtpediaDataset('data/artpedia', split='train', transform=self.train_transform
+            self.train_ds = ArtpediaDataset(self.data_dir, split='train', transform=self.train_transform
                                             , processor=self.processor, captions_per_image=self.captions_per_image)
-            self.valid_ds = ArtpediaDataset('data/artpedia', split='val', transform=self.test_transform
+            self.valid_ds = ArtpediaDataset(self.data_dir, split='val', transform=self.test_transform
                                             , processor=self.processor, captions_per_image=self.captions_per_image)
         if stage == "test":
-            self.test_ds = ArtpediaDataset('data/artpedia', split='test', transform=self.test_transform
+            self.test_ds = ArtpediaDataset(self.data_dir, split='test', transform=self.test_transform
                                            , processor=self.processor, captions_per_image=self.captions_per_image)
 
     def train_dataloader(self):
         return DataLoader(self.train_ds, batch_size=self.batch_size, collate_fn=self.train_ds._caption_collate,
-                          num_workers=self.num_workers)
+                          num_workers=self.num_workers, shuffle=True)
 
     def val_dataloader(self):
         return DataLoader(self.valid_ds, batch_size=self.batch_size, collate_fn=self.valid_ds._caption_collate,

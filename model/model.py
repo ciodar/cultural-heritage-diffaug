@@ -1,12 +1,18 @@
+import functools
+import importlib
 from typing import Optional, List
 
+import numpy as np
 import torch
 import torchmetrics
+import wandb
 from lightning import LightningModule
 from torch.optim import AdamW
 
 from transformers import get_cosine_schedule_with_warmup, AutoConfig, \
     AutoTokenizer, AutoModelForCausalLM
+
+from utils import rgetattr
 
 
 class LitTransformer(LightningModule):
@@ -18,7 +24,8 @@ class LitTransformer(LightningModule):
             weight_decay: float = 0.0,
             train_batch_size: int = 2,
             eval_batch_size: int = 2,
-            metrics: Optional[List[str]] = None,
+            metrics: Optional[List[dict]] = None,
+            generation: Optional[dict] = None,
             **kwargs,
     ):
         super().__init__()
@@ -29,12 +36,33 @@ class LitTransformer(LightningModule):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
 
         # define metrics
-        self._metric_ftns = [(met, getattr(torchmetrics.text, met)()) for met in metrics]
+        self._metric_ftns = []
+
+        #
+        for m in metrics:
+            module_name, classpath = m['class_path'].split('.')[0], '.'.join(m['class_path'].split('.')[1:])
+            module = importlib.import_module(module_name)
+            if m.get('init_args'):
+                self._metric_ftns.append(rgetattr(module, classpath)(**m.get('init_args')))
+            else:
+                self._metric_ftns.append(rgetattr(module, classpath)())
+
+        self.generation_cfg = {
+            "max_length": int(generation.get("max_length", 100)),
+            "num_beams": int(generation.get("num_beams", 1)),
+            "do_sample": bool(generation.get("do_sample", False)),
+            "temperature": float(generation.get("temperature", 1.0)),
+            "top_k": int(generation.get("top_k", 50)),
+        }
+
         # accumulators for labels and predictions
         self._labels, self._preds = [], []
 
     def forward(self, **inputs):
         return self.model(**inputs)
+
+    def generate(self, pixel_values: torch.Tensor = None, **generation_config):
+        return self.model.generate(pixel_values=pixel_values, **generation_config)
 
     def training_step(self, batch, batch_idx):
         outputs = self(**batch)
@@ -44,22 +72,26 @@ class LitTransformer(LightningModule):
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         inputs, all_labels = batch
-        preds = self.model.generate(**inputs, max_length=50)
+        preds = self.generate(pixel_values=inputs['pixel_values'], **self.generation_cfg)
         # TODO: include validation loss
         # currently using just one reference.
         # TODO: include all_labels
         labels = inputs["labels"]
+        # accumulate labels and predictions to calculate metrics at the end
         self._labels.append(labels.detach().cpu())
         self._preds.append(preds.detach().cpu())
+        return preds
 
     def on_validation_epoch_end(self) -> None:
-        preds = torch.cat([x for x in self._preds]).detach().cpu().numpy()
+        preds = torch.nn.utils.rnn.pad_sequence([p.transpose(0, 1) for p in self._preds],
+                                                padding_value=self.tokenizer.pad_token_id)
+        preds = preds.reshape(preds.shape[0], -1).transpose(0, 1)
         labels = torch.cat([y for y in self._labels]).detach().cpu().numpy()
         # decode all labels and predictions
         decoded_preds = self.tokenizer.batch_decode(preds, skip_special_tokens=True)
         decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
-        for name, metric in self._metric_ftns:
-            self._log_metric(name, metric(decoded_preds, decoded_labels))
+        for metric in self._metric_ftns:
+            self._log_metric(type(metric).__name__, metric(decoded_preds, decoded_labels))
 
         # reset accumulators
         self._labels, self._preds = [], []
@@ -74,7 +106,9 @@ class LitTransformer(LightningModule):
 
     def _log_metric(self, metric_name, metric):
         if isinstance(metric, dict):
-            for k, v in metric.items():
-                self.log(f'val/{metric_name}_{k}', v, prog_bar=True)
+            for k,v in metric.items():
+                if isinstance(v, list):
+                    v = np.mean(v)
+                self.log(f"{metric_name}/{k}", v, prog_bar=True)
         else:
-            self.log('val/' + metric_name, metric, prog_bar=True)
+            self.log(metric_name, metric, prog_bar=True)
