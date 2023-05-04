@@ -38,14 +38,14 @@ class LitTransformer(LightningModule):
         # define metrics
         self._metric_ftns = []
 
-        #
+        # Define metrics
         for m in metrics:
             module_name, classpath = m['class_path'].split('.')[0], '.'.join(m['class_path'].split('.')[1:])
             module = importlib.import_module(module_name)
-            if m.get('init_args'):
-                self._metric_ftns.append(rgetattr(module, classpath)(**m.get('init_args')))
-            else:
-                self._metric_ftns.append(rgetattr(module, classpath)())
+            args = m.get('init_args', {})
+            metric = rgetattr(module, classpath)(**args)
+            metric_name = m.get('metric_name', type(metric).__name__)
+            self._metric_ftns.append((metric_name, metric))
 
         self.generation_cfg = {
             "max_length": int(generation.get("max_length", 100)),
@@ -53,6 +53,8 @@ class LitTransformer(LightningModule):
             "do_sample": bool(generation.get("do_sample", False)),
             "temperature": float(generation.get("temperature", 1.0)),
             "top_k": int(generation.get("top_k", 50)),
+            "no_repeat_ngram_size": int(generation.get("no_repeat_ngram_size", 0)),
+            "early_stopping": bool(generation.get("early_stopping", False))
         }
 
         # accumulators for labels and predictions
@@ -90,8 +92,8 @@ class LitTransformer(LightningModule):
         # decode all labels and predictions
         decoded_preds = self.tokenizer.batch_decode(preds, skip_special_tokens=True)
         decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
-        for metric in self._metric_ftns:
-            self._log_metric(type(metric).__name__, metric(decoded_preds, decoded_labels))
+        for metric_name, metric in self._metric_ftns:
+            self._log_metric(metric_name, metric(decoded_preds, decoded_labels))
 
         # reset accumulators
         self._labels, self._preds = [], []
@@ -106,7 +108,7 @@ class LitTransformer(LightningModule):
 
     def _log_metric(self, metric_name, metric):
         if isinstance(metric, dict):
-            for k,v in metric.items():
+            for k, v in metric.items():
                 if isinstance(v, list):
                     v = np.mean(v)
                 self.log(f"{metric_name}/{k}", v, prog_bar=True)

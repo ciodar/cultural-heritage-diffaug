@@ -35,11 +35,11 @@ Project work for Computer Vision exam. Evaluation of image captioning and visual
 
 ## Results
 
-### Artpedia
-| Model    | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore |
-|----------|--------|--------|--------|--------|--------|---------|-------|-------|-----------|
-| [GIT](https://huggingface.co/docs/transformers/model_doc/git)  |
-| [OFA](https://github.com/OFA-Sys/OFA)  |
+### Artpedia - zero-shot
+| Model                                                           | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore |
+|-----------------------------------------------------------------|--------|--------|--------|--------|--------|---------|-------|-------|-----------|
+| [GIT](https://huggingface.co/docs/transformers/model_doc/git)   | 0.11   | 0      | 0      | 0      |        | 0.1     |       | 0     | 0.52      |
+| [OFA](https://github.com/OFA-Sys/OFA)                           |
 | [BLIP](https://huggingface.co/docs/transformers/model_doc/blip) |
 
 ## TODOs

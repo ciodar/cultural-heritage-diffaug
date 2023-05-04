@@ -92,6 +92,9 @@ class ArtpediaDataModule(L.LightningDataModule):
                                             , processor=self.processor, captions_per_image=self.captions_per_image)
             self.valid_ds = ArtpediaDataset(self.data_dir, split='val', transform=self.test_transform
                                             , processor=self.processor, captions_per_image=self.captions_per_image)
+        if stage == "validate":
+            self.valid_ds = ArtpediaDataset(self.data_dir, split='val', transform=self.test_transform
+                                            , processor=self.processor, captions_per_image=self.captions_per_image)
         if stage == "test":
             self.test_ds = ArtpediaDataset(self.data_dir, split='test', transform=self.test_transform
                                            , processor=self.processor, captions_per_image=self.captions_per_image)
