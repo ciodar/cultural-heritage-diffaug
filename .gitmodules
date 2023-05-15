@@ -1,0 +1,3 @@
+[submodule "speaksee"]
+	path = speaksee
+	url = https://github.com/aimagelab/speaksee

@@ -33,14 +33,42 @@ Project work for Computer Vision exam. Evaluation of image captioning and visual
       └── download.py - utility to download images from Artpedia json metadata
  ```
 
+## Usage
+
+### Train
+
+```bash
+python train.py fit --config configs/config.yaml
+```
+
+### Validation
+
+```bash
+python train.py validate --config configs/config.yaml --ckpt_path path/to/ckpt.ckpt
+```
+
+
+
 ## Results
 
-### Artpedia - zero-shot
+### Artpedia 
+#### zero-shot
+| Model                                                              | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore |
+|--------------------------------------------------------------------|--------|--------|--------|--------|--------|---------|-------|-------|-----------|
+| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | 0.11   | 0      | 0      | 0      |        | 0.1     |       | 0     | 0.52      |
+| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | 0.07   | 0      | 0      | 0      |        | 0.15    |       | 0     | 0.59      |
+| [OFA](https://github.com/OFA-Sys/OFA)                              |
+| [BLIP](https://huggingface.co/docs/transformers/model_doc/blip)    |
+
+#### finetuning
+Models have been finetuned for 10 epochs on training dataset
+
 | Model                                                           | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore |
 |-----------------------------------------------------------------|--------|--------|--------|--------|--------|---------|-------|-------|-----------|
-| [GIT](https://huggingface.co/docs/transformers/model_doc/git)   | 0.11   | 0      | 0      | 0      |        | 0.1     |       | 0     | 0.52      |
+| [GIT](https://huggingface.co/docs/transformers/model_doc/git)   | 0.03   | 0      | 0      | 0      |        | 0.16    |       | 0     | 0.62      |
 | [OFA](https://github.com/OFA-Sys/OFA)                           |
 | [BLIP](https://huggingface.co/docs/transformers/model_doc/blip) |
+
 
 ## TODOs
 - [ ] Train on Artpedia
