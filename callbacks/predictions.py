@@ -12,7 +12,7 @@ class LogPredictionSamplesCallback(Callback):
 
             x, y = batch['pixel_values'].detach().cpu(), batch['labels'].detach().cpu()
             # print max 20 images
-            n = max(batch.shape[0], 20)
+            n = max(x.shape[0], 20)
 
             images = [img for img in x[:n]]
             captions = [f'Prediction: {y_pred} - Ground Truth: {y_i}'

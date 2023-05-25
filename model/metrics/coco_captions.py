@@ -39,7 +39,7 @@ class CocoScore(Metric):
         gts = {i: [t] for i, t in enumerate(self.gts)}
         gen = {i: [p] for i, p in enumerate(self.gen)}
         for scorer, method in self.metrics:
-            print('computing %s score...' % (scorer.method()))
+            #print('computing %s score...' % (scorer.method()))
             score, scores = scorer.compute_score(gts, gen)
             if type(method) == list:
                 for sc, scs, m in zip(score, scores, method):

@@ -39,7 +39,7 @@ def download_images(json_path, dst_path, ):
                 print("Cannot find {}, error code: {}".format(url, e.code))
                 data.drop(index=i, inplace=True)
                 continue
-        data.loc[i, 'img_path'] = str(pl.PurePosixPath(file_path))
+        data.loc[i, 'img_path'] = f"{dst_path.name}/{filename}"
     print("Process finished. Found {} errors".format(errors))
     data.to_json(json_dir / '{}_local.json'.format(json_path.stem), orient='index', default_handler=str)
 

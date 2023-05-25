@@ -71,10 +71,11 @@ class ArtpediaDataset(Dataset):
 
 
 class ArtpediaDataModule(L.LightningDataModule):
-    def __init__(self, ann_file: str = './data/artpedia/artpedia.json', batch_size: int = 2,
+    def __init__(self, img_dir: str = './data/artpedia', ann_file: str = './data/artpedia/artpedia.json', batch_size: int = 2,
                  model_name_or_path: str = None, caption_mode: str = 'first'
                  , captions_per_image: int = 1, num_workers: int = 1):
         super().__init__()
+        self.img_dir = pl.Path(img_dir)
         self.ann_file = ann_file
         # set captioning mode
         self.captions_per_image = captions_per_image
@@ -108,7 +109,7 @@ class ArtpediaDataModule(L.LightningDataModule):
                 caption = c
                 example = Example.fromdict({
                     'id': k,
-                    'image': filename,
+                    'image': self.img_dir / filename,
                     'text': caption})
                 if v['split'] == 'train':
                     train_samples.append(example)

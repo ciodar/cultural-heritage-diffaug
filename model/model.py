@@ -22,8 +22,6 @@ class LitTransformer(LightningModule):
             learning_rate: float = 5e-5,
             warmup_steps: int = 500,
             weight_decay: float = 0.0,
-            train_batch_size: int = 2,
-            eval_batch_size: int = 2,
             metrics: Optional[List[dict]] = None,
             generation: Optional[dict] = None,
             **kwargs,
