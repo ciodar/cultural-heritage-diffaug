@@ -34,6 +34,7 @@ data/
 input/
 saved/
 datasets/
+wandb/
 
 # editor, os cache directory
 .vscode/

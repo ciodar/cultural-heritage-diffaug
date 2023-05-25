@@ -73,12 +73,11 @@ class LitTransformer(LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
-        inputs, all_labels = batch
-        preds = self.generate(pixel_values=inputs['pixel_values'], **self.generation_cfg)
+        preds = self.generate(pixel_values=batch['pixel_values'], **self.generation_cfg)
         # TODO: include validation loss
         # currently using just one reference.
         # TODO: include all_labels
-        labels = inputs["labels"]
+        labels = batch["labels"]
         # accumulate labels and predictions to calculate metrics at the end
         self._labels.append(labels.detach().cpu())
         self._preds.append(preds.detach().cpu())
