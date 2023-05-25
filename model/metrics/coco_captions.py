@@ -47,7 +47,6 @@ class CocoScore(Metric):
             else:
                 self.setEval(score, method)
             # self.setEvalImgs()
-            print(score, scores)
         return self.eval
 
     def setEval(self, score, method):

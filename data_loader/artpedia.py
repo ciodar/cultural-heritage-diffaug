@@ -87,6 +87,7 @@ class ArtpediaDataModule(L.LightningDataModule):
         self.num_workers = num_workers
         # TODO: research augmentation for Image Captioning / VQA
         # TODO: Check why Resize crops image
+        self.processor = None
         self.train_transform = transforms.Compose([
             transforms.Resize(224),
             # transforms.RandomHorizontalFlip()
@@ -94,9 +95,6 @@ class ArtpediaDataModule(L.LightningDataModule):
         self.test_transform = transforms.Compose([
             transforms.Resize(224)
         ])
-
-    def prepare_data(self) -> None:
-        self.processor = AutoProcessor.from_pretrained(self.model_name_or_path)
 
     def setup(self, stage: str) -> None:
         train_samples, val_samples, test_samples = [], [], []
@@ -117,6 +115,7 @@ class ArtpediaDataModule(L.LightningDataModule):
                     val_samples.append(example)
                 elif v['split'] == 'test':
                     test_samples.append(example)
+        self.processor = AutoProcessor.from_pretrained(self.model_name_or_path)
 
         if stage == "fit":
             self.train_ds = ArtpediaDataset(train_samples, transform=self.train_transform
