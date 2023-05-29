@@ -29,7 +29,7 @@ def download_images(json_path, dst_path, ):
         file_path = dst_path / filename
         if not pl.Path(file_path).exists():
             request = req.Request(url)
-            request.add_header('User-Agent', 'CulturalHeritageBot/0.0 (dario.cioni@stud.unifi.it)')
+            request.add_header('User-Agent', f'CulturalHeritageBot/0.0 ({args.user})')
             try:
                 response = req.urlopen(request)
                 out_file = open(file_path, 'wb')
@@ -46,6 +46,8 @@ def download_images(json_path, dst_path, ):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Downloader')
+    parser.add_argument('user', required=True, type=str,
+                        help='identifier for the user agent')
     parser.add_argument('json_path', default=None, type=str,
                         help='source of the json dataset (default: None)')
     parser.add_argument('dst_path', default=None, type=str,
