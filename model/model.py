@@ -1,15 +1,12 @@
-import functools
 import importlib
 from typing import Optional, List
 
 import numpy as np
 import torch
-import torchmetrics
-import wandb
 from lightning import LightningModule
 from torch.optim import AdamW
 
-from transformers import get_cosine_schedule_with_warmup, AutoConfig, \
+from transformers import get_cosine_schedule_with_warmup, \
     AutoTokenizer, AutoModelForCausalLM
 
 from utils import rgetattr
@@ -50,7 +47,6 @@ class LitTransformer(LightningModule):
             "num_beams": int(generation.get("num_beams", 1)),
             "do_sample": bool(generation.get("do_sample", False)),
             "temperature": float(generation.get("temperature", 1.0)),
-            "top_k": int(generation.get("top_k", 50)),
             "no_repeat_ngram_size": int(generation.get("no_repeat_ngram_size", 0)),
             "early_stopping": bool(generation.get("early_stopping", False))
         }
@@ -67,14 +63,17 @@ class LitTransformer(LightningModule):
     def training_step(self, batch, batch_idx):
         outputs = self(**batch)
         loss = outputs.loss
-        self.log('train/loss', loss, prog_bar=True, on_step=True, on_epoch=True)
+        self.log('loss/train', loss, prog_bar=True, on_step=True, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         preds = self.generate(pixel_values=batch['pixel_values'], **self.generation_cfg)
-        # TODO: include validation loss
+        # compute loss
+        # TODO: do it in one pass integrated in generate.
+        # See https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/36
+        loss = self(**batch).loss.item()
+        self.log('loss/validation', loss, prog_bar=True, on_step=False, on_epoch=True)
         # currently using just one reference.
-        # TODO: include all_labels
         labels = batch["labels"]
         # accumulate labels and predictions to calculate metrics at the end
         self._labels.append(labels.detach().cpu())
