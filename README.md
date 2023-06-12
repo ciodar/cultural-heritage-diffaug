@@ -4,6 +4,23 @@
 
 Project work for Computer Vision exam. Evaluation of image captioning and visual question answering techniques on cultural heritage datasets
 
+<!-- TOC -->
+* [Image captioning in Cultural Heritage](#image-captioning-in-cultural-heritage)
+  * [Project Structure](#project-structure)
+  * [Data](#data)
+  * [Usage](#usage)
+    * [Configuration](#configuration)
+    * [Train](#train)
+    * [Validation](#validation)
+  * [Results](#results)
+    * [Artpedia](#artpedia-)
+      * [zero-shot](#zero-shot)
+      * [finetuning](#finetuning)
+      * [finetuning with augmentation](#finetuning-with-augmentation)
+  * [TODOs](#todos)
+  * [References](#references)
+<!-- TOC -->
+
 ## Project Structure
 Here is the description of the main files and folders of the project.
 
@@ -124,21 +141,21 @@ Here are the performance of the pretrained models on the Artpedia dataset. The c
 [//]: # (| [BLIP]&#40;https://huggingface.co/docs/transformers/model_doc/blip&#41;              |        |        |        |        |        |         |       |       |           |)
 
 #### finetuning
-Models have been finetuned for 10 epochs on training dataset.
+Models have been finetuned for 250 steps on training dataset.
 
-| Model                                                              | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore (f1) |
-|--------------------------------------------------------------------|--------|--------|--------|--------|--------|---------|-------|-------|----------------|
-| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | 0.009  | 0.004  | 0.001  | 0      | 0.03   | 0.13    | 0.01  | -     | 0.62           |
+| Model                                                              | Augmented | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE  | BERTScore (f1) |
+|--------------------------------------------------------------------|-----------|--------|--------|--------|--------|--------|---------|-------|--------|----------------|
+| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✗         | 0.04   | 0.02   | 0.01   | 0.004  | 0.03   | 0.16    | 0.03  | -      | 0.65           |
+| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✓         | 0.06   | 0.03   | 0.008  | 0.005  | 0.054  | 0.17    | 0.04  | -      | 0.65           |
 
 [//]: # (| [OFA]&#40;https://github.com/OFA-Sys/OFA&#41;                           |        |        |        |        |        |         |       |       |           |)
 [//]: # (| [BLIP]&#40;https://huggingface.co/docs/transformers/model_doc/blip&#41; |        |        |        |        |        |         |       |       |           |)
 
-#### finetuning with augmentation
-Here are the results of the finetuning with augmentation.
+
 
 | Model                                                              | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore (f1) |
 |--------------------------------------------------------------------|--------|--------|--------|--------|--------|---------|-------|-------|----------------|
-| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | 0.02   | 0.01   | 0.004  | 0.002  | 0.04   | 0.15    | 0.04  | -     | 0.65           |
+
 
 [//]: # (| [OFA]&#40;https://github.com/OFA-Sys/OFA&#41;                           |        |        |        |        |        |         |       |       |           |)
 [//]: # (| [BLIP]&#40;https://huggingface.co/docs/transformers/model_doc/blip&#41; |        |        |        |        |        |         |       |       |           |)
