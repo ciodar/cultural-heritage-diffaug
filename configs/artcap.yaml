@@ -55,18 +55,18 @@ model:
         model_name_or_path: distilbert-base-uncased
         batch_size: 16
         lang: en
-        max_length: 512
+        max_length: 50
   generation:
-    num_beams: 1
+    num_beams: 4
     do_sample: true
     num_return_sequences: 1
-    #top_k: 50
-    max_length: 512
+    max_length: 40
+    no_repeat_ngram_size: 2
     temperature: 0.7
 data:
-  img_dir: data/artpedia/
-  ann_file: data/artpedia/artpedia.json
-  batch_size: 2
+  img_dir: data/artcap/
+  ann_file: data/artcap/artcap.json
+  batch_size: 8
   model_name_or_path: microsoft/git-base
   captions_per_image: 10
   num_workers: 6

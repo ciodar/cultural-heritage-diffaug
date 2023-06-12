@@ -1,0 +1,74 @@
+# lightning.pytorch==2.0.1.post0
+seed_everything: 42
+trainer:
+  default_root_dir: runs/
+  accelerator: auto
+  strategy: auto
+  devices: 1
+  num_nodes: 1
+  precision: 32-true
+  logger:
+    class_path: lightning.pytorch.loggers.WandbLogger
+    init_args:
+      name: null
+      save_dir: runs/
+      version: null
+      offline: false
+      dir: null
+      id: null
+      anonymous: null
+      project: cultural-heritage
+      log_model: false
+      experiment: null
+      prefix: ''
+      checkpoint_name: null
+      job_type: null
+      config: null
+      entity: null
+      reinit: null
+      tags: null
+      group: null
+      notes: null
+  callbacks:
+    class_path: callbacks.predictions.LogPredictionSamplesCallback
+  fast_dev_run: false
+  max_epochs: null
+  min_epochs: null
+  max_steps: 100
+  check_val_every_n_epoch: null
+  val_check_interval: 10
+  min_steps: null
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  accumulate_grad_batches: 16
+  log_every_n_steps: 10
+model:
+  model_name_or_path: microsoft/git-base
+  learning_rate: 5.0e-05
+  warmup_steps: 500
+  weight_decay: 0.0
+  metrics:
+    - class_path: model.CocoScore
+    - class_path: torchmetrics.text.BERTScore
+      init_args:
+        model_name_or_path: distilbert-base-uncased
+        batch_size: 16
+        lang: en
+        max_length: 512
+  generation:
+    num_beams: 1
+    do_sample: true
+    top_k: 50
+    num_return_sequences: 1
+    no_repeat_ngram_size: 2
+    max_new_tokens: 500
+    temperature: 0.7
+data:
+  img_dir: data/artpedia/
+  ann_file: data/artpedia/artpedia.json
+  batch_size: 8
+  model_name_or_path: microsoft/git-base
+  captions_per_image: 10
+  num_workers: 6
+ckpt_path: null

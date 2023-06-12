@@ -1,3 +1,4 @@
+import copy
 import importlib
 from typing import Optional, List
 
@@ -7,7 +8,7 @@ from lightning import LightningModule
 from torch.optim import AdamW
 
 from transformers import get_cosine_schedule_with_warmup, \
-    AutoTokenizer, AutoModelForCausalLM
+    AutoTokenizer, AutoModelForCausalLM, GenerationConfig
 
 from utils import rgetattr
 
@@ -42,14 +43,7 @@ class LitTransformer(LightningModule):
             metric_name = m.get('metric_name', type(metric).__name__)
             self._metric_ftns.append((metric_name, metric))
 
-        self.generation_cfg = {
-            "max_length": int(generation.get("max_length", 100)),
-            "num_beams": int(generation.get("num_beams", 1)),
-            "do_sample": bool(generation.get("do_sample", False)),
-            "temperature": float(generation.get("temperature", 1.0)),
-            "no_repeat_ngram_size": int(generation.get("no_repeat_ngram_size", 0)),
-            "early_stopping": bool(generation.get("early_stopping", False))
-        }
+        self.generation_cfg = GenerationConfig.from_pretrained(model_name_or_path, **generation)
 
         # accumulators for labels and predictions
         self._labels, self._preds = [], []
@@ -57,8 +51,8 @@ class LitTransformer(LightningModule):
     def forward(self, **inputs):
         return self.model(**inputs)
 
-    def generate(self, pixel_values: torch.Tensor = None, **generation_config):
-        return self.model.generate(pixel_values=pixel_values, **generation_config)
+    def generate(self, pixel_values: torch.Tensor = None):
+        return self.model.generate(pixel_values=pixel_values, generation_config=self.generation_cfg)
 
     def training_step(self, batch, batch_idx):
         outputs = self(**batch)
@@ -67,12 +61,12 @@ class LitTransformer(LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
-        preds = self.generate(pixel_values=batch['pixel_values'], **self.generation_cfg)
+        preds = self.generate(pixel_values=batch['pixel_values'])
         # compute loss
         # TODO: do it in one pass integrated in generate.
         # See https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/36
-        loss = self(**batch).loss.item()
-        self.log('loss/validation', loss, prog_bar=True, on_step=False, on_epoch=True)
+        # loss = self(**batch).loss.item()
+        # self.log('loss/validation', loss, prog_bar=True, on_step=False, on_epoch=True)
         # currently using just one reference.
         labels = batch["labels"]
         # accumulate labels and predictions to calculate metrics at the end

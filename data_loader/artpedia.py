@@ -71,7 +71,8 @@ class ArtpediaDataset(Dataset):
 
 
 class ArtpediaDataModule(L.LightningDataModule):
-    def __init__(self, img_dir: str = './data/artpedia', ann_file: str = './data/artpedia/artpedia.json', batch_size: int = 2,
+    def __init__(self, img_dir: str = './data/artpedia', ann_file: str = './data/artpedia/artpedia.json',
+                 batch_size: int = 2,
                  model_name_or_path: str = None, caption_mode: str = 'first'
                  , captions_per_image: int = 1, num_workers: int = 1):
         super().__init__()
@@ -127,7 +128,7 @@ class ArtpediaDataModule(L.LightningDataModule):
         if stage == "validate":
             self.valid_ds = ArtpediaDataset(val_samples, transform=self.test_transform
                                             , processor=self.processor, captions_per_image=self.captions_per_image
-                                            , caption_mode = self.caption_mode)
+                                            , caption_mode=self.caption_mode)
         if stage == "test":
             self.test_ds = ArtpediaDataset(test_samples, transform=self.test_transform
                                            , processor=self.processor, captions_per_image=self.captions_per_image
