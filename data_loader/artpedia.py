@@ -22,12 +22,13 @@ Dataset class for Image Captioning on Artpedia dataset (https://iris.unimore.it/
 
 class ArtpediaDataset(Dataset):
     def __init__(self, samples: list[Example], transform=None, processor=None, captions_per_image=10
-                 , caption_mode='random'):
+                 , caption_mode='random', sd_augmentation=0.0):
         self.data = samples
         self.transform = transform
         self.processor = processor
         self.captions_per_image = captions_per_image
         self.caption_mode = caption_mode
+        self.sd_augmentation = sd_augmentation
 
     def _get_captions(self, all_captions):
         if type(all_captions) == str:
@@ -48,6 +49,18 @@ class ArtpediaDataset(Dataset):
             raise ValueError('Caption mode {} not supported'.format(self.caption_mode))
         return caption, captions
 
+    def _get_image(self, index):
+        if random.random() < self.sd_augmentation and self.data[index].augmented_images:
+            # Choose randomly one of the augmented images
+            image_path = random.choice(self.data[index].augmented_images)
+        else:
+            # Choose the original image
+            image_path = self.data[index].image
+        image = Image.open(image_path).convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
+        return image
+
     def collate_fn(self, batch):
         images, captions = zip(*batch)
         encoded = self.processor(images=images, text=captions, padding="max_length",
@@ -56,12 +69,9 @@ class ArtpediaDataset(Dataset):
         return encoded
 
     def __getitem__(self, i):
-        image_path = self.data[i].image
-        image = Image.open(image_path).convert('RGB')
+        image = self._get_image(i)
         # get all visual sentences
         all_captions = self.data[i].text
-        if self.transform is not None:
-            image = self.transform(image)
         # get single caption and padded list of captions
         caption, captions = self._get_captions(all_captions)
         return image, caption
@@ -74,13 +84,14 @@ class ArtpediaDataModule(L.LightningDataModule):
     def __init__(self, img_dir: str = './data/artpedia', ann_file: str = './data/artpedia/artpedia.json',
                  batch_size: int = 2,
                  model_name_or_path: str = None, caption_mode: str = 'first'
-                 , captions_per_image: int = 1, num_workers: int = 1):
+                 , captions_per_image: int = 1, sd_augmentation=0.0, num_workers: int = 1):
         super().__init__()
         self.img_dir = pl.Path(img_dir)
         self.ann_file = ann_file
         # set captioning mode
         self.captions_per_image = captions_per_image
         self.caption_mode = caption_mode
+        self.sd_augmentation = sd_augmentation
         # set model name for processor
         self.model_name_or_path = model_name_or_path
         # for now use same batch size for train and test
@@ -105,10 +116,12 @@ class ArtpediaDataModule(L.LightningDataModule):
         for k, v in self.data.items():
             for c in v['caption']:
                 filename = v['img_path']
+                augmented_images = v.get('sd_augmentations', [])
                 caption = c
                 example = Example.fromdict({
                     'id': k,
                     'image': self.img_dir / filename,
+                    'augmented_images': [self.img_dir / filename for filename in augmented_images] if self.sd_augmentation else [],
                     'text': caption})
                 if v['split'] == 'train':
                     train_samples.append(example)
@@ -121,7 +134,7 @@ class ArtpediaDataModule(L.LightningDataModule):
         if stage == "fit":
             self.train_ds = ArtpediaDataset(train_samples, transform=self.train_transform
                                             , processor=self.processor, captions_per_image=1
-                                            , caption_mode='first')
+                                            , caption_mode='first', sd_augmentation=self.sd_augmentation)
             self.valid_ds = ArtpediaDataset(val_samples, transform=self.test_transform
                                             , processor=self.processor, captions_per_image=self.captions_per_image
                                             , caption_mode=self.caption_mode)

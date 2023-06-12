@@ -67,7 +67,8 @@ model:
 data:
   img_dir: data/artpedia/
   ann_file: data/artpedia/artpedia.json
-  batch_size: 8
+  sd_augmentation: 0.5
+  batch_size: 2
   model_name_or_path: microsoft/git-base
   captions_per_image: 10
   num_workers: 6

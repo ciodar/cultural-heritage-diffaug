@@ -52,7 +52,7 @@ Here is the description of the main files and folders of the project.
  ```
 
 ## Data
-Experiments were performed on the [Artpedia](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35) dataset. Images were downloaded from Wikipedia using the [download.py](utils/download.py) script.
+Experiments were performed on the [Artpedia](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35) dataset. Images were downloaded from Wikipedia using the [download.py](download.py) script.
 To download the images, run the following command, providing a valid identifier to avoid being blocked by the server.
 
 ```bash
