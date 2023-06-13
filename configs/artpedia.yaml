@@ -31,7 +31,7 @@ trainer:
       notes: null
   callbacks:
     - class_path: callbacks.predictions.LogPredictionSamplesCallback
-    - class_path: callbacks.ModelCheckpoint
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
         monitor: BERTScore/f1
         verbose: false

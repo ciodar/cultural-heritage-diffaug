@@ -16,7 +16,6 @@ Project work for Computer Vision exam. Evaluation of image captioning and visual
     * [Artpedia](#artpedia-)
       * [zero-shot](#zero-shot)
       * [finetuning](#finetuning)
-      * [finetuning with augmentation](#finetuning-with-augmentation)
   * [TODOs](#todos)
   * [References](#references)
 <!-- TOC -->
@@ -52,14 +51,14 @@ Here is the description of the main files and folders of the project.
  ```
 
 ## Data
-Experiments were performed on the [Artpedia](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35) dataset. Images were downloaded from Wikipedia using the [download.py](download.py) script.
+Experiments were performed on the Artpedia [[1](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35)] dataset. Images were downloaded from Wikipedia using the [download.py](download.py) script.
 To download the images, run the following command, providing a valid identifier to avoid being blocked by the server.
 
 ```bash
 python utils/download.py email@domain.com --ann_file data/artpedia/artpedia.json --img_dir data/artpedia/images 
 ```
 
-The already processed annotations (including both original artpedia and the augmented dataset) are provided [here](https://drive.google.com/drive/folders/1STLtxx81r4VUCIqU3_3olhqGBSxf2sXh?usp=share_link).
+The already processed annotations (including both original Artpedia and the augmented dataset) are provided [here](https://drive.google.com/drive/folders/1STLtxx81r4VUCIqU3_3olhqGBSxf2sXh?usp=share_link).
 
 ## Usage
 Command line interface is implemented using [LightningCLI](https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.cli.LightningCLI.html).
@@ -143,10 +142,12 @@ Here are the performance of the pretrained models on the Artpedia dataset. The c
 #### finetuning
 Models have been finetuned for 250 steps on training dataset.
 
-| Model                                                              | Augmented | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE  | BERTScore (f1) |
-|--------------------------------------------------------------------|-----------|--------|--------|--------|--------|--------|---------|-------|--------|----------------|
-| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✗         | 0.04   | 0.02   | 0.01   | 0.004  | 0.03   | 0.16    | 0.03  | -      | 0.65           |
-| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✓         | 0.06   | 0.03   | 0.008  | 0.005  | 0.054  | 0.17    | 0.04  | -      | 0.65           |
+| Model                                                              | Augmented | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore (f1) |
+|--------------------------------------------------------------------|-----------|--------|--------|--------|--------|--------|---------|-------|-------|----------------|
+| OFA (Bongini et al [])                                             | ✗         | 0.048  | -      | -      | -      | -      | 0.138   | 0.091 | -     | -              |
+| GPT-3 (Bongini et al [])                                           | ✗         | 0.181  | -      | -      | -      | -      | 0.188   | 0.079 | -     | -              |
+| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✗         | 0.04   | 0.02   | 0.01   | 0.004  | 0.03   | 0.16    | 0.03  | -     | 0.65           |
+| [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✓         | 0.06   | 0.03   | 0.008  | 0.005  | 0.054  | 0.17    | 0.04  | -     | 0.65           |
 
 [//]: # (| [OFA]&#40;https://github.com/OFA-Sys/OFA&#41;                           |        |        |        |        |        |         |       |       |           |)
 [//]: # (| [BLIP]&#40;https://huggingface.co/docs/transformers/model_doc/blip&#41; |        |        |        |        |        |         |       |       |           |)
@@ -173,4 +174,5 @@ Models have been finetuned for 250 steps on training dataset.
 ## References
 - [Artpedia](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35) dataset - [paper](https://iris.unimore.it/retrieve/handle/11380/1178736/224456/paper.pdf)
 - [GIT](https://huggingface.co/docs/transformers/model_doc/git) model - [paper](https://arxiv.org/abs/2205.14100)
+- Bongini, Pietro, Federico Becattini, and Alberto Del Bimbo. "Is GPT-3 all you need for Visual Question Answering in Cultural Heritage?." arXiv preprint arXiv:2207.12101 (2022).
 

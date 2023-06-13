@@ -4,6 +4,7 @@ from typing import Optional, List
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from lightning import LightningModule
 from torch.optim import AdamW
 
@@ -75,9 +76,11 @@ class LitTransformer(LightningModule):
         return preds
 
     def on_validation_epoch_end(self) -> None:
-        preds = torch.nn.utils.rnn.pad_sequence([p.transpose(0, 1) for p in self._preds],
-                                                padding_value=self.tokenizer.pad_token_id)
-        preds = preds.reshape(preds.shape[0], -1).transpose(0, 1)
+        # shape: (batch_size, seq_len) - > (batch_size, max_seq_len)
+        max_len = max([p.shape[1] for p in self._preds])
+        preds = [F.pad(p, (0, max_len - p.shape[1]), "constant", self.tokenizer.pad_token_id) for p in
+                 self._preds]
+        preds = torch.cat(preds, dim=0)
         labels = torch.cat([y for y in self._labels]).detach().cpu().numpy()
         # decode all labels and predictions
         decoded_preds = self.tokenizer.batch_decode(preds, skip_special_tokens=True)
