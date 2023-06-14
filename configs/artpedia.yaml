@@ -18,7 +18,7 @@ trainer:
       id: null
       anonymous: null
       project: cultural-heritage
-      log_model: false
+      log_model: true
       experiment: null
       prefix: ''
       checkpoint_name: null
@@ -67,18 +67,15 @@ model:
         lang: en
         max_length: 512
   generation:
-    num_beams: 1
-    do_sample: true
-    top_k: 50
+    num_beams: 4
     num_return_sequences: 1
-    no_repeat_ngram_size: 2
-    max_new_tokens: 500
-    temperature: 0.7
+    max_new_tokens: 100
+    length_penalty: 0.6
 data:
   img_dir: data/artpedia/
   ann_file: data/artpedia/artpedia.json
   sd_augmentation: 0.5
-  batch_size: 2
+  batch_size: 8
   model_name_or_path: microsoft/git-base
   captions_per_image: 10
   num_workers: 6

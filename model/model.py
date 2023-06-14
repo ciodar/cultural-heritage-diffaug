@@ -62,12 +62,12 @@ class LitTransformer(LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
-        preds = self.generate(pixel_values=batch['pixel_values'])
         # compute loss
-        # TODO: do it in one pass integrated in generate.
         # See https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/36
-        # loss = self(**batch).loss.item()
-        # self.log('loss/validation', loss, prog_bar=True, on_step=False, on_epoch=True)
+        # TODO: do it in one pass integrated in generate.
+        loss = self(**batch).loss.item()
+        preds = self.generate(pixel_values=batch['pixel_values'])
+        self.log('loss/validation', loss, prog_bar=True, on_step=False, on_epoch=True)
         # currently using just one reference.
         labels = batch["labels"]
         # accumulate labels and predictions to calculate metrics at the end

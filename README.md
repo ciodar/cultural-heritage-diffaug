@@ -51,7 +51,7 @@ Here is the description of the main files and folders of the project.
  ```
 
 ## Data
-Experiments were performed on the Artpedia [[1](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35)] dataset. Images were downloaded from Wikipedia using the [download.py](download.py) script.
+Experiments were performed on the Artpedia [[1](https://iris.unimore.it/retrieve/handle/11380/1178736/224456/paper.pdf)] dataset. Images were downloaded from Wikipedia using the [download.py](download.py) script.
 To download the images, run the following command, providing a valid identifier to avoid being blocked by the server.
 
 ```bash
@@ -144,19 +144,10 @@ Models have been finetuned for 250 steps on training dataset.
 
 | Model                                                              | Augmented | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore (f1) |
 |--------------------------------------------------------------------|-----------|--------|--------|--------|--------|--------|---------|-------|-------|----------------|
-| OFA (Bongini et al [])                                             | ✗         | 0.048  | -      | -      | -      | -      | 0.138   | 0.091 | -     | -              |
-| GPT-3 (Bongini et al [])                                           | ✗         | 0.181  | -      | -      | -      | -      | 0.188   | 0.079 | -     | -              |
+| OFA (Bongini et al [[2](https://arxiv.org/pdf/2207.12101.pdf)])                                        | ✗         | 0.048  | -      | -      | -      | -      | 0.138   | 0.091 | -     | -              |
+| GPT-3 (Bongini et al [[2](https://arxiv.org/pdf/2207.12101.pdf)])                                      | ✗         | 0.181  | -      | -      | -      | -      | 0.188   | 0.079 | -     | -              |
 | [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✗         | 0.04   | 0.02   | 0.01   | 0.004  | 0.03   | 0.16    | 0.03  | -     | 0.65           |
 | [GIT-base](https://huggingface.co/docs/transformers/model_doc/git) | ✓         | 0.06   | 0.03   | 0.008  | 0.005  | 0.054  | 0.17    | 0.04  | -     | 0.65           |
-
-[//]: # (| [OFA]&#40;https://github.com/OFA-Sys/OFA&#41;                           |        |        |        |        |        |         |       |       |           |)
-[//]: # (| [BLIP]&#40;https://huggingface.co/docs/transformers/model_doc/blip&#41; |        |        |        |        |        |         |       |       |           |)
-
-
-
-| Model                                                              | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L | CIDEr | SPICE | BERTScore (f1) |
-|--------------------------------------------------------------------|--------|--------|--------|--------|--------|---------|-------|-------|----------------|
-
 
 [//]: # (| [OFA]&#40;https://github.com/OFA-Sys/OFA&#41;                           |        |        |        |        |        |         |       |       |           |)
 [//]: # (| [BLIP]&#40;https://huggingface.co/docs/transformers/model_doc/blip&#41; |        |        |        |        |        |         |       |       |           |)
@@ -168,11 +159,13 @@ Models have been finetuned for 250 steps on training dataset.
 - [ ] Handle validation loss calculation during generation
 - [ ] Support OFA (Tiny-Medium-Base)
 - [ ] Support BLIP
-- [ ] Check if it is possible to shorten caption with some preprocessing
-- [ ] Evaluate on other art datasets
+- [ ] Evaluate on other art datasets (ArtCap, SemArt, IconClass, ...)
 
 ## References
-- [Artpedia](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35) dataset - [paper](https://iris.unimore.it/retrieve/handle/11380/1178736/224456/paper.pdf)
-- [GIT](https://huggingface.co/docs/transformers/model_doc/git) model - [paper](https://arxiv.org/abs/2205.14100)
-- Bongini, Pietro, Federico Becattini, and Alberto Del Bimbo. "Is GPT-3 all you need for Visual Question Answering in Cultural Heritage?." arXiv preprint arXiv:2207.12101 (2022).
-
+- [[1](https://iris.unimore.it/retrieve/handle/11380/1178736/224456/paper.pdf)] Stefanini, Matteo, et al. "Artpedia: A new visual-semantic dataset with visual and contextual sentences in the artistic domain." Image Analysis and Processing–ICIAP 2019: 20th International Conference, Trento, Italy, September 9–13, 2019, Proceedings, Part II 20. Springer International Publishing, 2019. -  dataset [link](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35)
+- [[2](https://arxiv.org/pdf/2207.12101.pdf)] Bongini, Pietro, Federico Becattini, and Alberto Del Bimbo. "Is GPT-3 all you need for Visual Question Answering in Cultural Heritage?." arXiv preprint arXiv:2207.12101 (2022).
+- [[3](https://iopscience.iop.org/article/10.1088/1757-899X/949/1/012074/meta)] Bongini, Pietro, et al. "Visual question answering for cultural heritage." IOP Conference Series: Materials Science and Engineering. Vol. 949. No. 1. IOP Publishing, 2020.
+- [[4](https://arxiv.org/abs/2205.14100)] Wang, Jianfeng et al. “GIT: A Generative Image-to-text Transformer for Vision and Language.” Trans. Mach. Learn. Res. 2022 (2022): n. pag. - [Huggingface page](https://huggingface.co/docs/transformers/model_doc/git)
+- [[5](https://proceedings.mlr.press/v162/wang22al/wang22al.pdf)] Wang, Peng, et al. "Ofa: Unifying architectures, tasks, and modalities through a simple sequence-to-sequence learning framework." International Conference on Machine Learning. PMLR, 2022.
+- [[6](https://arxiv.org/pdf/2302.07944.pdf)] Trabucco, Brandon, et al. "Effective data augmentation with diffusion models." arXiv preprint arXiv:2302.07944 (2023).
+- [[7](https://arxiv.org/pdf/2210.07574.pdf)] He, Ruifei, et al. "Is synthetic data from generative models ready for image recognition?." arXiv preprint arXiv:2210.07574 (2022). 
