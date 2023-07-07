@@ -21,8 +21,9 @@ class LitTransformer(LightningModule):
             learning_rate: float = 5e-5,
             warmup_steps: int = 500,
             weight_decay: float = 0.0,
-            metrics: Optional[List[dict]] = None,
+            metrics: Optional[List[dict]] = (),
             generation: Optional[dict] = None,
+            freeze_text_encoder: bool = False,
             **kwargs,
     ):
         super().__init__()
@@ -45,6 +46,12 @@ class LitTransformer(LightningModule):
             self._metric_ftns.append((metric_name, metric))
 
         self.generation_cfg = GenerationConfig.from_pretrained(model_name_or_path, **generation)
+
+        # freeze text encoder
+        if freeze_text_encoder:
+            for name, param in self.named_parameters():  # freeze decoder weights
+                if ('git.encoder' in name) or ('git.embeddings' in name):
+                    param.requires_grad = False
 
         # accumulators for labels and predictions
         self._labels, self._preds = [], []
@@ -92,8 +99,10 @@ class LitTransformer(LightningModule):
         self._labels, self._preds = [], []
 
     def configure_optimizers(self):
+
+        parameters = [p for p in self.parameters() if p.requires_grad]
         # model = self.model
-        optimizer = AdamW(self.parameters(), lr=self.hparams.learning_rate)
+        optimizer = AdamW(parameters, lr=self.hparams.learning_rate)
         scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=self.hparams.warmup_steps,
                                                     num_training_steps=self.trainer.estimated_stepping_batches)
         scheduler = {"scheduler": scheduler, "interval": "step", "frequency": 1}
