@@ -105,13 +105,7 @@ class ArtpediaDataModule(L.LightningDataModule):
         # TODO: research augmentation for Image Captioning / VQA
         # TODO: Check why Resize crops image
         self.processor = None
-        self.train_transform = transforms.Compose([
-            transforms.Resize(224),
-            # transforms.RandomHorizontalFlip()
-        ])
-        self.test_transform = transforms.Compose([
-            transforms.Resize(224)
-        ])
+        self.transform = None
 
     def setup(self, stage: str) -> None:
         train_samples, val_samples, test_samples = [], [], []
@@ -137,18 +131,18 @@ class ArtpediaDataModule(L.LightningDataModule):
         self.processor = AutoProcessor.from_pretrained(self.model_name_or_path)
 
         if stage == "fit":
-            self.train_ds = ArtpediaDataset(train_samples, transform=self.train_transform
+            self.train_ds = ArtpediaDataset(train_samples, transform=self.transform
                                             , processor=self.processor, captions_per_image=1
                                             , caption_mode='first', sd_augmentation=self.sd_augmentation)
-            self.valid_ds = ArtpediaDataset(val_samples, transform=self.test_transform
+            self.valid_ds = ArtpediaDataset(val_samples, transform=self.transform
                                             , processor=self.processor, captions_per_image=self.captions_per_image
                                             , caption_mode=self.caption_mode)
         if stage == "validate":
-            self.valid_ds = ArtpediaDataset(val_samples, transform=self.test_transform
+            self.valid_ds = ArtpediaDataset(val_samples, transform=self.transform
                                             , processor=self.processor, captions_per_image=self.captions_per_image
                                             , caption_mode=self.caption_mode)
         if stage == "test":
-            self.test_ds = ArtpediaDataset(test_samples, transform=self.test_transform
+            self.test_ds = ArtpediaDataset(test_samples, transform=self.transform
                                            , processor=self.processor, captions_per_image=self.captions_per_image
                                            , caption_mode=self.caption_mode)
 
