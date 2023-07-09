@@ -113,10 +113,11 @@ class ArtpediaDataModule(L.LightningDataModule):
             self.data = json.load(f)
             self.ids = list(self.data.keys())
         for k, v in self.data.items():
-            for c in v['caption']:
+            captions = v['caption']
+            for i in range(min(len(captions), int(self.captions_per_image))):
+                caption = captions[i]
                 filename = v['img_path']
                 augmented_images = v.get('sd_augmentations', [])
-                caption = c
                 example = Example.fromdict({
                     'id': k,
                     'image': self.img_dir / filename,
