@@ -18,7 +18,9 @@ def main(args):
     input_json = args.input_json
     input_folder = pl.Path(args.input_folder)
     output_folder = pl.Path(args.output_folder)
+    api_url = args.api_url
     n_variations = args.n_variations
+    batch_size = args.batch_size
 
     # Diffusion params
     steps = args.steps
@@ -37,11 +39,15 @@ def main(args):
         # print(item)
         image_path = input_folder / item["img_path"]
         prompt = item["caption"][0]
+
         if item["split"] != "train":
             continue
-
+        
         folder_name = f"{id}_{pl.Path(image_path).stem}"
-        (output_folder / folder_name).mkdir(exist_ok=True)
+        if (output_folder / folder_name).exists() and len(list((output_folder / folder_name).iterdir())) >= n_variations:
+            continue
+        else:
+            (output_folder / folder_name).mkdir(exist_ok=True)
 
         assert image_path.exists(), f"Image path {image_path} does not exist"
         with Image.open(image_path) as im:
@@ -59,7 +65,7 @@ def main(args):
             width = int(DIMENSION * size[0] / size[1])
 
 
-        for s in range(n_variations):
+        for s in range(0,n_variations,batch_size):
             payload = {
                 "init_images": [img_base64],
                 "prompt": prompt,
@@ -71,22 +77,21 @@ def main(args):
                 "restore_faces": False,
                 "steps": steps,
                 "seed": s,
+                "batch_size": batch_size,
             }
 
-            img2img_response = requests.post(url=f'http://127.0.0.1:7860/sdapi/v1/img2img', json=payload)
+            img2img_response = requests.post(url=f'{api_url}/sdapi/v1/img2img', json=payload)
 
-            print(output_folder / folder_name /  f"{s:05d}_{steps}_{ALIASES[sampler_name]}_{s}_0.png")
             ## Check status
             if img2img_response.status_code != 200:
                 print(img2img_response.text)
                 break
             else:
                 r = img2img_response.json()
-                image = r["images"][0]
-                image = Image.open(BytesIO(base64.b64decode(image)))
-                image.save(os.path.join(output_folder, folder_name, f"{s:05d}_{steps}_{ALIASES[sampler_name]}_{s}_0.png"))
-        
-
+                for i, image in enumerate(r["images"]):
+                    image = Image.open(BytesIO(base64.b64decode(image)))
+                    #print(os.path.join(output_folder, folder_name, f"{s+i:05d}_{steps}_{ALIASES[sampler_name]}_{s+i}_0.png"))
+                    image.save(os.path.join(output_folder, folder_name, f"{s+i:05d}_{steps}_{ALIASES[sampler_name]}_{s+i}_0.png"))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -94,6 +99,7 @@ if __name__ == "__main__":
     parser.add_argument("--input_folder", type=str, default="C:\\path\\to\\input\\folder")
     parser.add_argument("--output_folder", type=str, default="C:\\path\\to\\output\\folder")
     parser.add_argument("--n_variations", type=int, default=1)
+    parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--api_url", type=str, default="http://127.0.0.1:7860")
     parser.add_argument("--cfg_scale", type=int, default=10)
     parser.add_argument("--steps", type=int, default=40)
