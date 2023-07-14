@@ -45,7 +45,11 @@ class LitTransformer(LightningModule):
             metric_name = m.get('metric_name', type(metric).__name__)
             self._metric_ftns.append((metric_name, metric))
 
-        self.generation_cfg = GenerationConfig.from_pretrained(model_name_or_path, **generation)
+        try:
+            self.generation_cfg = GenerationConfig.from_pretrained(model_name_or_path, **generation)
+        except EnvironmentError:
+            print('Generation config not found, using default config')
+            self.generation_cfg = GenerationConfig(**generation)
 
         # freeze text encoder
         if freeze_text_encoder:
