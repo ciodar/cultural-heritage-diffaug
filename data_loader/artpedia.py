@@ -21,7 +21,7 @@ Dataset class for Image Captioning on Artpedia dataset (https://iris.unimore.it/
 
 
 class ArtpediaDataset(Dataset):
-    def __init__(self, samples: list[Example], transform=None, processor=None, captions_per_image=10
+    def __init__(self, samples: list[Example], transform=None, processor=None, captions_per_image=1
                  , caption_mode='random', sd_augmentation=0.0):
         self.data = samples
         self.transform = transform
@@ -106,6 +106,9 @@ class ArtpediaDataModule(L.LightningDataModule):
         # TODO: Check why Resize crops image
         self.processor = None
         self.transform = None
+
+    def prepare_data(self):
+        AutoProcessor.from_pretrained(self.model_name_or_path)
 
     def setup(self, stage: str) -> None:
         train_samples, val_samples, test_samples = [], [], []

@@ -1,7 +1,7 @@
 import argparse
 import base64
 from io import BytesIO
-import os 
+import os
 import requests
 from PIL import Image
 import json
@@ -12,7 +12,10 @@ ALIASES = {
     "Euler a": "k_euler_a",
 }
 DIMENSION = 576
-
+MAX_SIZE = 4096 * 2
+# avoids PIL.Image.DecompressionBombError
+# https://stackoverflow.com/questions/51152059/pillow-in-python-wont-let-me-open-image-exceeds-limit
+Image.MAX_IMAGE_PIXELS = None
 
 def main(args):
     input_json = args.input_json
@@ -35,16 +38,24 @@ def main(args):
     with open(input_json, "r") as f:
         data = json.load(f)
 
+    folders = {f.name.split('_')[0]: f.name for f in output_folder.iterdir() if f.is_dir()}
+
     for i, (id, item) in enumerate(tqdm(data.items())):
         # print(item)
         image_path = input_folder / item["img_path"]
         prompt = item["caption"][0]
+        title = image_path.stem if item.get("title") is None else item["title"]
 
         if item["split"] != "train":
             continue
-        
-        folder_name = f"{id}_{pl.Path(image_path).stem}"
-        if (output_folder / folder_name).exists() and len(list((output_folder / folder_name).iterdir())) >= n_variations:
+        if id in folders:
+            folder_name = folders[id]
+        else:
+            folder_name = f"{id}_{title}"
+
+        if (output_folder / folder_name).exists() and len(
+                list((output_folder / folder_name).iterdir())) >= n_variations:
+            #print(f"Skipping {folder_name} as it already exists")
             continue
         else:
             (output_folder / folder_name).mkdir(exist_ok=True)
@@ -52,20 +63,20 @@ def main(args):
         assert image_path.exists(), f"Image path {image_path} does not exist"
         with Image.open(image_path) as im:
             size = im.size
+            width, height = size
+            if width > height:
+                width = DIMENSION
+                height = int(DIMENSION * size[1] / size[0])
+            else:
+                height = DIMENSION
+                width = int(DIMENSION * size[0] / size[1])
+            if max(size) > MAX_SIZE:
+                im.thumbnail((width, height), Image.LANCZOS)
             buffered = BytesIO()
             im.save(buffered, format="PNG")
             img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-        width, height = size
-        if width > height:
-            width = DIMENSION
-            height = int(DIMENSION * size[1] / size[0])
-        else:
-            height = DIMENSION
-            width = int(DIMENSION * size[0] / size[1])
-
-
-        for s in range(0,n_variations,batch_size):
+        for s in range(0, n_variations, batch_size):
             payload = {
                 "init_images": [img_base64],
                 "prompt": prompt,
@@ -85,13 +96,15 @@ def main(args):
             ## Check status
             if img2img_response.status_code != 200:
                 print(img2img_response.text)
-                break
+                raise Exception(f"Error in img2img API call: {img2img_response.status_code}")
             else:
                 r = img2img_response.json()
                 for i, image in enumerate(r["images"]):
                     image = Image.open(BytesIO(base64.b64decode(image)))
-                    #print(os.path.join(output_folder, folder_name, f"{s+i:05d}_{steps}_{ALIASES[sampler_name]}_{s+i}_0.png"))
-                    image.save(os.path.join(output_folder, folder_name, f"{s+i:05d}_{steps}_{ALIASES[sampler_name]}_{s+i}_0.png"))
+                    # print(os.path.join(output_folder, folder_name, f"{s+i:05d}_{steps}_{ALIASES[sampler_name]}_{s+i}_0.png"))
+                    image.save(os.path.join(output_folder, folder_name,
+                                            f"{s + i:05d}_{steps}_{ALIASES[sampler_name]}_{s + i}_0.png"))
+        #break # DEBUG
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
