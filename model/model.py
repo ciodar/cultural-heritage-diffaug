@@ -9,7 +9,7 @@ from lightning import LightningModule
 from torch.optim import AdamW
 
 from transformers import get_cosine_schedule_with_warmup, \
-    AutoTokenizer, AutoModelForCausalLM, GenerationConfig
+    AutoTokenizer, GenerationConfig, AutoModelForVision2Seq
 
 from utils import rgetattr
 
@@ -30,7 +30,7 @@ class LitTransformer(LightningModule):
         # log hyperparams in yaml
         self.save_hyperparameters()
 
-        self.model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
+        self.model = AutoModelForVision2Seq.from_pretrained(model_name_or_path)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
 
         # define metrics
