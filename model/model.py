@@ -104,7 +104,7 @@ class LitTransformer(LightningModule):
         for metric_name, metric in self._metric_ftns:
             self._log_metric(metric_name, metric(res, gts))
         # reset accumulators
-        self._gts, self._preds = {}, {}
+        self._gts, self._preds = [], []
 
     def configure_optimizers(self):
 
