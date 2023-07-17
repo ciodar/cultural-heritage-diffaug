@@ -41,7 +41,7 @@ class LitTransformer(LightningModule):
             module_name, classpath = m['class_path'].split('.')[0], '.'.join(m['class_path'].split('.')[1:])
             module = importlib.import_module(module_name)
             args = m.get('init_args', {})
-            metric = rgetattr(module, classpath)(**args)
+            metric = rgetattr(module, classpath)(device=self.device, **args)
             metric_name = m.get('metric_name', type(metric).__name__)
             self._metric_ftns.append((metric_name, metric))
 

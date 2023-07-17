@@ -15,7 +15,7 @@ Torchmetrics wrapper for pycocoevalcap.COCOEvalCap
 
 
 class CocoScore(Metric):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
         self.tokenizer = ptbtokenizer.PTBTokenizer()
         self.metrics = [
