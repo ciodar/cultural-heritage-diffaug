@@ -1,30 +1,16 @@
-from typing import List, Union, Sequence, Dict
+from typing import Dict, Sequence
 
 from torchmetrics import Metric
 
-from bleu.bleu import Bleu
-from cider.cider import Cider
-from meteor.meteor import Meteor
-from rouge.rouge import Rouge
-from spice.spice import Spice
 from tokenizer import ptbtokenizer
-
-"""
-Torchmetrics wrapper for pycocoevalcap.COCOEvalCap
-"""
+import bert_score
 
 
-class CocoScore(Metric):
-    def __init__(self):
+class BERTScore(Metric):
+    def __init__(self, **kwargs):
         super().__init__()
         self.tokenizer = ptbtokenizer.PTBTokenizer()
-        self.metrics = [
-            (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
-            (Meteor(), "METEOR"),
-            (Rouge(), "ROUGE_L"),
-            (Cider(), "CIDEr"),
-            # (Spice(), "SPICE")
-        ]
+        self.scorer = bert_score.BERTScorer(**kwargs)
         self.add_state("gts", default=[], dist_reduce_fx="cat")
         self.add_state("gen", default=[], dist_reduce_fx="cat")
         self.add_state("ids", default=[], dist_reduce_fx="cat")
@@ -40,19 +26,18 @@ class CocoScore(Metric):
         gen = {int(id): gen for id, gen in zip(self.ids, self.gen)}
         gts = self.tokenizer.tokenize(gts)
         gen = self.tokenizer.tokenize(gen)
-        for scorer, method in self.metrics:
-            # print('computing %s score...' % (scorer.method()))
-            score, scores = scorer.compute_score(gts, gen)
-            if type(method) == list:
-                for sc, scs, m in zip(score, scores, method):
-                    self.setEval(sc, m)
-            else:
-                self.setEval(score, method)
-            # self.setEvalImgs()
+
+        p, r, f1 = self.scorer.score([v[0] for v in gen.values()], [v for v in gts.values()])
+        self.setEval({
+            "precision": p.mean().item(),
+            "recall": r.mean().item(),
+            "f1": f1.mean().item()
+        })
+        # self.setEvalImgs()
         return self.eval
 
-    def setEval(self, score, method):
-        self.eval[method] = score
+    def setEval(self, score):
+        self.eval = score
 
     def setImgToEvalImgs(self, scores, imgIds, method):
         for imgId, score in zip(imgIds, scores):

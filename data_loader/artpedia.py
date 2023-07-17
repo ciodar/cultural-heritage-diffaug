@@ -1,10 +1,10 @@
 import json
 
 import lightning as L
-from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import pathlib as pl
+import torch
 import random
 from transformers import AutoProcessor
 
@@ -30,51 +30,33 @@ class ArtpediaDataset(Dataset):
         self.caption_mode = caption_mode
         self.sd_augmentation = sd_augmentation
 
-    def _get_captions(self, all_captions):
-        if type(all_captions) == str:
-            return all_captions, [all_captions]
-        if len(all_captions) < self.captions_per_image:
-            captions = all_captions + [random.choice(all_captions)
-                                       for _ in range(self.captions_per_image - len(all_captions))]
-        else:
-            captions = random.sample(all_captions, k=self.captions_per_image)
-        if self.caption_mode == 'random':
-            caption = random.choice(all_captions)
-        elif self.caption_mode == 'first':
-            caption = all_captions[0]
-        elif self.caption_mode == 'cat':
-            caption = '\n'.join(all_captions)
-            captions = [caption]
-        else:
-            raise ValueError('Caption mode {} not supported'.format(self.caption_mode))
-        return caption, captions
-
-    def _get_image(self, index):
-        if random.random() < self.sd_augmentation and self.data[index].augmented_images:
+    def _get_image(self, images):
+        if random.random() < self.sd_augmentation and len(images) > 1:
             # Choose randomly one of the augmented images
-            image_path = random.choice(self.data[index].augmented_images)
+            image_path = random.choice(images[1:])
         else:
             # Choose the original image
-            image_path = self.data[index].image
+            image_path = images[0]
         image = Image.open(image_path).convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
         return image
 
     def collate_fn(self, batch):
-        images, captions = zip(*batch)
-        encoded = self.processor(images=images, text=captions, padding="max_length",
+        images, texts, gts = zip(*batch)
+        encoded = self.processor(text=texts, images=images, padding="max_length",
                                  truncation=True, return_tensors="pt")
         encoded['labels'] = encoded['input_ids']
-        return encoded
+
+        return encoded, gts
 
     def __getitem__(self, i):
-        image = self._get_image(i)
-        # get all visual sentences
-        all_captions = self.data[i].text
-        # get single caption and padded list of captions
-        caption, captions = self._get_captions(all_captions)
-        return image, caption
+        sample = self.data[i]
+        image = self._get_image(sample.images)
+        id = sample.id
+        gts = sample.captions
+        caption = random.choice(gts)
+        return image, caption, {id: gts}
 
     def __len__(self):
         return len(self.data)
@@ -111,28 +93,32 @@ class ArtpediaDataModule(L.LightningDataModule):
         AutoProcessor.from_pretrained(self.model_name_or_path)
 
     def setup(self, stage: str) -> None:
+        self.processor = AutoProcessor.from_pretrained(self.model_name_or_path)
         train_samples, val_samples, test_samples = [], [], []
         with open(self.ann_file, 'r') as f:
             self.data = json.load(f)
             self.ids = list(self.data.keys())
         for k, v in self.data.items():
             captions = v['caption']
-            for i in range(min(len(captions), int(self.captions_per_image))):
-                caption = captions[i]
-                filename = v['img_path']
+            if len(captions) < self.captions_per_image:
+                captions = captions + [random.choice(captions)
+                                       for _ in range(self.captions_per_image - len(captions))]
+            filename = v['img_path']
+            if self.sd_augmentation:
                 augmented_images = v.get('sd_augmentations', [])
-                example = Example.fromdict({
-                    'id': k,
-                    'image': self.img_dir / filename,
-                    'augmented_images': [self.img_dir / filename for filename in augmented_images] if self.sd_augmentation else [],
-                    'text': caption})
-                if v['split'] == 'train':
-                    train_samples.append(example)
-                elif v['split'] == 'val':
-                    val_samples.append(example)
-                elif v['split'] == 'test':
-                    test_samples.append(example)
-        self.processor = AutoProcessor.from_pretrained(self.model_name_or_path)
+            else:
+                augmented_images = []
+            example = Example.fromdict({
+                'id': k,
+                'images': [self.img_dir / filename] + [self.img_dir / filename for filename in augmented_images],
+                'captions': captions,
+            })
+            if v['split'] == 'train':
+                train_samples.append(example)
+            elif v['split'] == 'val':
+                val_samples.append(example)
+            elif v['split'] == 'test':
+                test_samples.append(example)
 
         if stage == "fit":
             self.train_ds = ArtpediaDataset(train_samples, transform=self.transform

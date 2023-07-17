@@ -58,7 +58,7 @@ class LitTransformer(LightningModule):
                     param.requires_grad = False
 
         # accumulators for labels and predictions
-        self._labels, self._preds = [], []
+        self._gts, self._preds = [], []
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -67,24 +67,24 @@ class LitTransformer(LightningModule):
         return self.model.generate(pixel_values=pixel_values, generation_config=self.generation_cfg)
 
     def training_step(self, batch, batch_idx):
+        batch, _ = batch
         outputs = self(**batch)
         loss = outputs.loss
         self.log('loss/train', loss, prog_bar=True, on_step=True, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
+        batch, gt = batch
         # compute loss
         # See https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/36
         # TODO: do it in one pass integrated in generate.
         loss = self(**batch).loss.item()
-        preds = self.generate(pixel_values=batch['pixel_values'])
+        pred = self.generate(pixel_values=batch['pixel_values'])
         self.log('loss/validation', loss, prog_bar=True, on_step=False, on_epoch=True)
-        # currently using just one reference.
-        labels = batch["labels"]
         # accumulate labels and predictions to calculate metrics at the end
-        self._labels.append(labels.detach().cpu())
-        self._preds.append(preds.detach().cpu())
-        return preds
+        self._gts.extend(gt)
+        self._preds.append(pred.detach().cpu())
+        return pred
 
     def on_validation_epoch_end(self) -> None:
         # shape: (batch_size, seq_len) - > (batch_size, max_seq_len)
@@ -92,15 +92,19 @@ class LitTransformer(LightningModule):
         preds = [F.pad(p, (0, max_len - p.shape[1]), "constant", self.tokenizer.pad_token_id) for p in
                  self._preds]
         preds = torch.cat(preds, dim=0)
-        labels = torch.cat([y for y in self._labels]).detach().cpu().numpy()
         # decode all labels and predictions
         decoded_preds = self.tokenizer.batch_decode(preds, skip_special_tokens=True)
-        decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
-        for metric_name, metric in self._metric_ftns:
-            self._log_metric(metric_name, metric(decoded_preds, decoded_labels))
+        gts, res = {}, {}
 
+        for r, gt in zip(decoded_preds, self._gts):
+            (k, v), = gt.items()
+            gts[k] = v
+            res[k] = [r]
+
+        for metric_name, metric in self._metric_ftns:
+            self._log_metric(metric_name, metric(res, gts))
         # reset accumulators
-        self._labels, self._preds = [], []
+        self._gts, self._preds = {}, {}
 
     def configure_optimizers(self):
 

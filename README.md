@@ -156,10 +156,10 @@ Models have been finetuned for 250 steps on training dataset.
 - [x] Train on Artpedia
 - [x] Add BLEU, METEOR, ROUGE-L, CIDEr
 - [ ] Add SPICE
-- [ ] Handle validation loss calculation during generation
+- [x] Handle validation loss calculation during generation
 - [ ] Support OFA (Tiny-Medium-Base)
-- [ ] Support BLIP
-- [ ] Evaluate on other art datasets (ArtCap, SemArt, IconClass, ...)
+- [x] Support BLIP
+- [x] Evaluate on other art datasets (ArtCap, SemArt, IconClass, ...)
 
 ## References
 - [[1](https://iris.unimore.it/retrieve/handle/11380/1178736/224456/paper.pdf)] Stefanini, Matteo, et al. "Artpedia: A new visual-semantic dataset with visual and contextual sentences in the artistic domain." Image Analysis and Processing–ICIAP 2019: 20th International Conference, Trento, Italy, September 9–13, 2019, Proceedings, Part II 20. Springer International Publishing, 2019. -  dataset [link](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=35)

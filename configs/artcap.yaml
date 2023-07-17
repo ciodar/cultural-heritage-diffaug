@@ -57,12 +57,11 @@ model:
   weight_decay: 0.0
   metrics:
     - class_path: model.CocoScore
-    - class_path: torchmetrics.text.BERTScore
+    - class_path: model.BERTScore
       init_args:
-        model_name_or_path: distilbert-base-uncased
+        model_type: distilbert-base-uncased
         batch_size: 16
         lang: en
-        max_length: 50
   generation:
     num_beams: 4
     num_return_sequences: 1

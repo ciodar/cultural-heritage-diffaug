@@ -9,7 +9,7 @@ class LogPredictionSamplesCallback(Callback):
         if batch_idx == 0:
             wandb_logger = pl_module.logger
             tokenizer = pl_module.tokenizer
-
+            batch, _ = batch
             x, y = batch['pixel_values'].detach().cpu(), batch['labels'].detach().cpu()
             # print max 20 images
             n = max(x.shape[0], 20)
