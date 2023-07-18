@@ -73,6 +73,6 @@ data:
   sd_augmentation: 0.0
   batch_size: 8
   model_name_or_path: microsoft/git-base
-  captions_per_image: 1
+  captions_per_image: 5
   num_workers: 6
 ckpt_path: null
