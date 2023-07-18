@@ -71,7 +71,8 @@ class ArtpediaDataModule(L.LightningDataModule):
                  caption_mode: str = 'first',
                  captions_per_image: int = 1,
                  sd_augmentation=0.0,
-                 num_workers: int = 1):
+                 num_workers: int = 1,
+                 transform=None):
         super().__init__()
         self.img_dir = pl.Path(img_dir)
         self.ann_file = ann_file
@@ -88,6 +89,17 @@ class ArtpediaDataModule(L.LightningDataModule):
         # TODO: Check why Resize crops image
         self.processor = None
         self.transform = None
+        if transform:
+            self.transform = []
+            for t in transform:
+                # module_name, classpath = t['class_path'].split('.')[0], '.'.join(t['class_path'].split('.')[1:])
+                # module = importlib.import_module(module_name)
+                # args = t.get('init_args', {})
+                # t_obj = rgetattr(module, classpath)(**args)
+                self.transform.append(t)
+            self.transform = torch.nn.Sequential(*self.transform)
+        #if self.transform is not None:
+
 
     def prepare_data(self):
         AutoProcessor.from_pretrained(self.model_name_or_path)
@@ -124,15 +136,15 @@ class ArtpediaDataModule(L.LightningDataModule):
             self.train_ds = ArtpediaDataset(train_samples, transform=self.transform
                                             , processor=self.processor, captions_per_image=1
                                             , caption_mode='first', sd_augmentation=self.sd_augmentation)
-            self.valid_ds = ArtpediaDataset(val_samples, transform=self.transform
+            self.valid_ds = ArtpediaDataset(val_samples, transform=None
                                             , processor=self.processor, captions_per_image=self.captions_per_image
                                             , caption_mode=self.caption_mode)
         if stage == "validate":
-            self.valid_ds = ArtpediaDataset(val_samples, transform=self.transform
+            self.valid_ds = ArtpediaDataset(val_samples, transform=None
                                             , processor=self.processor, captions_per_image=self.captions_per_image
                                             , caption_mode=self.caption_mode)
         if stage == "test":
-            self.test_ds = ArtpediaDataset(test_samples, transform=self.transform
+            self.test_ds = ArtpediaDataset(test_samples, transform=None
                                            , processor=self.processor, captions_per_image=self.captions_per_image
                                            , caption_mode=self.caption_mode)
 

@@ -30,7 +30,8 @@ trainer:
       group: null
       notes: null
   callbacks:
-    - class_path: callbacks.predictions.LogPredictionSamplesCallback
+    - class_path: callbacks.logging.LogTrainSamplesCallback
+    - class_path: callbacks.logging.LogPredictionSamplesCallback
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
         monitor: CocoScore/CIDEr
@@ -39,10 +40,9 @@ trainer:
         save_last: true
         save_weights_only: false
         mode: max
-        every_n_train_steps: 50
         filename: null
   fast_dev_run: false
-  max_epochs: 50
+  max_epochs: 10
   min_epochs: null
   check_val_every_n_epoch: 1
   val_check_interval: null #NB: this is the number of batches, not steps!
@@ -61,7 +61,6 @@ model:
     - class_path: model.BERTScore
       init_args:
         model_type: distilbert-base-uncased
-        rescale_with_baseline: False
         batch_size: 16
         lang: en
   generation:
@@ -75,6 +74,8 @@ data:
   sd_augmentation: 0.0
   batch_size: 8
   model_name_or_path: microsoft/git-base
-  captions_per_image: 10
+  captions_per_image: 1
   num_workers: 6
+  transform:
+    - class_path: torchvision.transforms.AutoAugment
 ckpt_path: null

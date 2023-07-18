@@ -21,6 +21,25 @@ class LogPredictionSamplesCallback(Callback):
 
             # Option 1: log images with `WandbLogger.log_image`
             wandb_logger.log_image(
-                key='sample_images',
+                key='prediction_samples',
                 images=images,
                 caption=captions)
+
+class LogTrainSamplesCallback(Callback):
+    """Log prediction samples to W&B.
+    """
+    def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx, **kwargs):
+        if batch_idx == 0:
+            wandb_logger = pl_module.logger
+            tokenizer = pl_module.tokenizer
+            batch, _ = batch
+            x = batch['pixel_values'].detach().cpu()
+            # print max 20 images
+            n = max(x.shape[0], 20)
+
+            images = [img for img in x[:n]]
+
+            # Option 1: log images with `WandbLogger.log_image`
+            wandb_logger.log_image(
+                key='train_samples',
+                images=images)

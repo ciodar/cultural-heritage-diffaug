@@ -30,7 +30,8 @@ trainer:
       group: null
       notes: null
   callbacks:
-    - class_path: callbacks.predictions.LogPredictionSamplesCallback
+    - class_path: callbacks.logging.LogTrainSamplesCallback
+    - class_path: callbacks.logging.LogPredictionSamplesCallback
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
         monitor: CocoScore/CIDEr
@@ -75,4 +76,6 @@ data:
   model_name_or_path: microsoft/git-base
   captions_per_image: 5
   num_workers: 6
+  transform:
+    - class_path: torchvision.transforms.AutoAugment
 ckpt_path: null
