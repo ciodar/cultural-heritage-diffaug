@@ -147,6 +147,10 @@ class ArtpediaDataModule(L.LightningDataModule):
             self.test_ds = ArtpediaDataset(test_samples, transform=None
                                            , processor=self.processor, captions_per_image=self.captions_per_image
                                            , caption_mode=self.caption_mode)
+        if stage == "predict":
+            self.test_ds = ArtpediaDataset(test_samples, transform=None
+                                           , processor=self.processor, captions_per_image=self.captions_per_image
+                                           , caption_mode=self.caption_mode)
 
     def train_dataloader(self):
         return DataLoader(self.train_ds, batch_size=self.batch_size, collate_fn=self.train_ds.collate_fn,
@@ -157,5 +161,9 @@ class ArtpediaDataModule(L.LightningDataModule):
                           num_workers=self.num_workers)
 
     def test_dataloader(self):
+        return DataLoader(self.test_ds, batch_size=self.batch_size, collate_fn=self.test_ds.collate_fn,
+                          num_workers=self.num_workers)
+
+    def predict_dataloader(self):
         return DataLoader(self.test_ds, batch_size=self.batch_size, collate_fn=self.test_ds.collate_fn,
                           num_workers=self.num_workers)

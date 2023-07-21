@@ -24,7 +24,7 @@ class WandbLightningCLI(LightningCLI):
         if c.resume_run_id:
             run_id = c.resume_run_id
             api = wandb.Api()
-            artifact = api.artifact(f'{c.trainer.logger.init_args.project}/model-{run_id}:latest', type="model")
+            artifact = api.artifact(f'{c.trainer.logger.init_args.project}/{run_id}', type="model")
             artifact_dir = artifact.download()
             c.ckpt_path = str(Path(artifact_dir) / "model.ckpt")
         else:

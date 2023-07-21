@@ -28,7 +28,8 @@ class CocoScore(Metric):
         self.add_state("gts", default=[], dist_reduce_fx="cat")
         self.add_state("gen", default=[], dist_reduce_fx="cat")
         self.add_state("ids", default=[], dist_reduce_fx="cat")
-        self.eval, self.evalImgs = {}, {}
+        self.add_state("evalImgs", default=[], dist_reduce_fx="cat")
+
 
     def update(self, preds: Dict[int, Sequence[str]], target: Dict[int, Sequence[str]]):
         self.ids.extend(target.keys())
@@ -36,6 +37,8 @@ class CocoScore(Metric):
         self.gen.extend(preds.values())
 
     def compute(self):
+        self.eval = {}
+        self.imgToEval = {}
         gts = {int(id): gts for id, gts in zip(self.ids, self.gts)}
         gen = {int(id): gen for id, gen in zip(self.ids, self.gen)}
         gts = self.tokenizer.tokenize(gts)
@@ -46,9 +49,11 @@ class CocoScore(Metric):
             if type(method) == list:
                 for sc, scs, m in zip(score, scores, method):
                     self.setEval(sc, m)
+                    self.setImgToEvalImgs(scs, gts.keys(), m)
             else:
                 self.setEval(score, method)
-            # self.setEvalImgs()
+                self.setImgToEvalImgs(scores, gts.keys(), method)
+        self.setEvalImgs()
         return self.eval
 
     def setEval(self, score, method):

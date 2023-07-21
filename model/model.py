@@ -1,17 +1,34 @@
-import copy
 import importlib
 from typing import Optional, List
+import os
+import json
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from lightning import LightningModule
 from torch.optim import AdamW
-
 from transformers import get_cosine_schedule_with_warmup, \
     AutoTokenizer, GenerationConfig, AutoModelForVision2Seq
 
 from utils import rgetattr
+
+generation_types = {
+    "max_length": int,
+    "max_new_tokens": int,
+    "early_stopping": bool,
+    "no_repeat_ngram_size": int,
+    "temperature": float,
+    "num_beams": int,
+    "do_sample": bool,
+    "penalty_alpha": float,
+    "top_k": int,
+    "top_p": float,
+    "repetition_penalty": float,
+    "length_penalty": float,
+    "num_return_sequences": int,
+}
+
 
 
 class LitTransformer(LightningModule):
@@ -44,7 +61,7 @@ class LitTransformer(LightningModule):
             metric = rgetattr(module, classpath)(device=self.device, **args)
             metric_name = m.get('metric_name', type(metric).__name__)
             self._metric_ftns.append((metric_name, metric))
-
+        generation = {k: generation_types[k](v) for k, v in generation.items()}
         try:
             self.generation_cfg = GenerationConfig.from_pretrained(model_name_or_path, **generation)
         except EnvironmentError:
@@ -86,6 +103,20 @@ class LitTransformer(LightningModule):
         self._preds.append(pred.detach().cpu())
         return pred
 
+    def test_step(self, batch, batch_idx, dataloader_idx=0):
+        batch, gt = batch
+        pred = self.generate(pixel_values=batch['pixel_values'])
+        self._gts.extend(gt)
+        self._preds.append(pred.detach().cpu())
+        return pred
+
+    def predict_step(self, batch, batch_idx, dataloader_idx=0):
+        batch, _ = batch
+        pred = self.generate(pixel_values=batch['pixel_values'])
+        decoded_pred = self.tokenizer.batch_decode(pred, skip_special_tokens=True)
+        return decoded_pred
+        self._preds.append(pred.detach().cpu())
+
     def on_validation_epoch_end(self) -> None:
         # shape: (batch_size, seq_len) - > (batch_size, max_seq_len)
         max_len = max([p.shape[1] for p in self._preds])
@@ -103,6 +134,33 @@ class LitTransformer(LightningModule):
 
         for metric_name, metric in self._metric_ftns:
             self._log_metric(metric_name, metric(res, gts))
+        # reset accumulators
+        self._gts, self._preds = [], []
+
+    def on_test_epoch_end(self) -> None:
+        # shape: (batch_size, seq_len) - > (batch_size, max_seq_len)
+        max_len = max([p.shape[1] for p in self._preds])
+        preds = [F.pad(p, (0, max_len - p.shape[1]), "constant", self.tokenizer.pad_token_id) for p in
+                 self._preds]
+        preds = torch.cat(preds, dim=0)
+        # decode all labels and predictions
+        decoded_preds = self.tokenizer.batch_decode(preds, skip_special_tokens=True)
+        gts, res = {}, {}
+
+        for r, gt in zip(decoded_preds, self._gts):
+            (k, v), = gt.items()
+            gts[k] = v
+            res[k] = [r]
+
+        for metric_name, metric in self._metric_ftns:
+            self._log_metric(metric_name, metric(res, gts))
+            if metric_name == 'CocoScore':
+                data = metric.imgToEval
+        for k in data:
+            data[k]['caption'] = res[str(k)][0]
+        with open(os.path.join(self.logger.save_dir, 'predictions.json'), 'w') as f:
+            json.dump(data, f)
+
         # reset accumulators
         self._gts, self._preds = [], []
 

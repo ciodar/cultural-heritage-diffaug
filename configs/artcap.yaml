@@ -40,6 +40,7 @@ trainer:
         save_last: true
         save_weights_only: false
         mode: max
+        dirpath: runs/checkpoints/
         filename: null
   fast_dev_run: false
   max_epochs: 10
