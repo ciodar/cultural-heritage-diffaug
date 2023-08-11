@@ -1,16 +1,12 @@
 # Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage
 
-[![arXiv](https://img.shields.io/badge/arXiv-2106.01984-b31b1b)](#)
+<!-- [![arXiv](https://img.shields.io/badge/arXiv)](#) -->
 [![GitHub stars](https://img.shields.io/github/stars/ciodar/cultural-heritage-image2text?style=social)](#)
 [![PyTorch Lightning](https://img.shields.io/badge/PyTorch-Lightning-blueviolet)](#)
 
 This is the official repository for the ICCV 2023 4th Workshop on e-Heritage paper: **[Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](#)**
 
-<object data="https://github.com/ciodar/cultural-heritage-diffaug/blob/4bc0fef46c7b7ca23abbd79675b1cf57c3390bf7/resources/schematic_iccv_2.drawio.pdf" type="application/pdf" width="700px" height="500px">
-    <embed src="https://github.com/ciodar/cultural-heritage-diffaug/blob/4bc0fef46c7b7ca23abbd79675b1cf57c3390bf7/resources/schematic_iccv_2.drawio.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://github.com/ciodar/cultural-heritage-diffaug/blob/4bc0fef46c7b7ca23abbd79675b1cf57c3390bf7/resources/schematic_iccv_2.drawio.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
+![Teaser](./resources/teaser.png)
 
 <!-- TOC -->
 * [Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](#diffusion-based-augmentation-for-captioning-and-retrieval-in-cultural-heritage)
