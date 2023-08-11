@@ -4,7 +4,13 @@
 [![GitHub stars](https://img.shields.io/github/stars/ciodar/cultural-heritage-image2text?style=social)](#)
 [![PyTorch Lightning](https://img.shields.io/badge/PyTorch-Lightning-blueviolet)](#)
 
-This is the official repository for the ICCV 2023 4th Workshop on e-Heritage paper: **[Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](https://arxiv.org/abs/2106.01984)**
+This is the official repository for the ICCV 2023 4th Workshop on e-Heritage paper: **[Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](#)**
+
+<object data="https://github.com/ciodar/cultural-heritage-diffaug/blob/4bc0fef46c7b7ca23abbd79675b1cf57c3390bf7/resources/schematic_iccv_2.drawio.pdf" type="application/pdf" width="700px" height="500px">
+    <embed src="https://github.com/ciodar/cultural-heritage-diffaug/blob/4bc0fef46c7b7ca23abbd79675b1cf57c3390bf7/resources/schematic_iccv_2.drawio.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://github.com/ciodar/cultural-heritage-diffaug/blob/4bc0fef46c7b7ca23abbd79675b1cf57c3390bf7/resources/schematic_iccv_2.drawio.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
 
 <!-- TOC -->
 * [Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](#diffusion-based-augmentation-for-captioning-and-retrieval-in-cultural-heritage)
@@ -26,10 +32,6 @@ Here is the description of the main files and folders of the project.
   cultural-heritage-image2text/
   │
   ├── main.py - main script for training and testing models
-  │
-  ├── notebooks/ - collection of notebooks for exploration and demonstration of features
-  │   ├── image-captioning.ipynb: Artpedia dataset exploration and example of image captioning with trained models
-  │   └── ...
   │
   ├── data_loader/ - anything about data loading goes here
   │   └── artpedia.py contains Artpedia Dataset and DataModule
@@ -135,7 +137,7 @@ python main.py test -c configs/config.yaml --ckpt_path path/to/ckpt.ckpt
 
 ## Results
 
-Here are the performance of the pretrained models on the Artpedia and ArtCap dataset.
+Here are the performance of the pretrained models on the Artpedia and ArtCap dataset. For additional results, please refer to the paper.
 
 ![](./resources/results.png)
 
@@ -144,4 +146,4 @@ Here are the performance of the pretrained models on the Artpedia and ArtCap dat
 - [x] Add BLEU, METEOR, ROUGE-L, CIDEr
 - [x] Handle validation loss calculation during generation
 - [x] Support BLIP
-- [x] Evaluate on other art datasets (ArtCap, SemArt, IconClass, ...)
+- [x] Evaluate on other art datasets (ArtCap)
