@@ -1,0 +1,14 @@
+torch
+torchvision
+numpy
+transformers
+torchmetrics
+lightning
+matplotlib
+wandb
+jsonargparse[signatures]
+tqdm
+pathlib
+pandas
+pillow
+bert-score
