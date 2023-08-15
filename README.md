@@ -1,24 +1,37 @@
 # Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage
 
-<!-- [![arXiv](https://img.shields.io/badge/arXiv)](#) -->
+[![arXiv](https://img.shields.io/badge/arXiv%3A-2308.07151-B31B1B)](http://arxiv.org/abs/2308.07151)
 [![GitHub stars](https://img.shields.io/github/stars/ciodar/cultural-heritage-image2text?style=social)](#)
 [![PyTorch Lightning](https://img.shields.io/badge/PyTorch-Lightning-blueviolet)](#)
 
-This is the official repository for the ICCV 2023 4th Workshop on e-Heritage paper: **[Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](#)**
+This is the official repository for the ICCV 2023 4th Workshop on e-Heritage paper: **[Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](http://arxiv.org/abs/2308.07151)** Dario Cioni, Lorenzo Berlincioni, Federico Becattini, Alberto del Bimbo
 
 ![Teaser](./resources/teaser.png)
 
+If you find our work useful, we welcome citations:
+
+```bibtex
+@misc{cioni2023diffusion,
+    title={Diffusion Based Augmentation for Captioning and Retrieval in Cultural Heritage},
+    author={Dario Cioni and Lorenzo Berlincioni and Federico Becattini and Alberto del Bimbo},
+    year={2023},
+    eprint={2308.07151},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
+
+## Table of Contents
 <!-- TOC -->
-* [Diffusion Based Augmentation for captioning and retrieval in Cultural Heritage](#diffusion-based-augmentation-for-captioning-and-retrieval-in-cultural-heritage)
-  * [Project Structure](#project-structure)
-  * [Data](#data)
-  * [Installation](#installation)
-  * [Usage](#usage)
-    * [Configuration](#configuration)
-    * [Train](#train)
-    * [Test](#test)
-  * [Results](#results)
-  * [TODOs](#todos)
+* [Project Structure](#project-structure)
+* [Data](#data)
+* [Installation](#installation)
+* [Usage](#usage)
+  * [Configuration](#configuration)
+  * [Train](#train)
+  * [Test](#test)
+* [Results](#results)
+* [TODOs](#todos)
 <!-- TOC -->
 
 ## Project Structure
@@ -48,8 +61,8 @@ Here is the description of the main files and folders of the project.
  ```
 
 ## Data
-Experiments were performed on the Artpedia [[1](https://iris.unimore.it/retrieve/handle/11380/1178736/224456/paper.pdf)] dataset. Images were downloaded from Wikipedia using the [download.py](download.py) script.
-To download the images, run the following command, providing a valid identifier.
+Experiments were performed on the [Artpedia](https://iris.unimore.it/retrieve/handle/11380/1178736/224456/paper.pdf) and [ArtCap]() datasets. Images were downloaded from Wikipedia using the [download.py](download.py) script.
+To download the images, run the following command, providing a valid identifier, the annotation file and the output directory.
 
 ```bash
 python utils/download.py email@domain.com --ann_file data/artpedia/artpedia.json --img_dir data/artpedia/images 
@@ -57,7 +70,7 @@ python utils/download.py email@domain.com --ann_file data/artpedia/artpedia.json
 
 ## Installation
 
-This project a modified version of pycocoevalcap. To install it, run the following command:
+This project uses a modified version of [pycocoevalcap](https://github.com/salaniz/pycocoevalcap). To install it, run the following command:
 
 ```bash
 git submodule add --init
@@ -118,6 +131,15 @@ python main.py fit --config configs/config.yaml --data.batch_size 32
 
 You can find a complete example of a configuration file in [configs/](configs/) folder.
 
+### Dataset augmentation
+The dataset augmentation is performed using the [img2img.py](utils/img2img.py) script. The script uses the [Automatic1111 API](https://github.com/AUTOMATIC1111/stable-diffusion-webui). To use the script, you need to provide an URL to the API. The script takes as input the path to the dataset annotation file, the path to the original dataset images and the output path for the augmented dataset. 
+
+For each image in the dataset, the script generates a new folder with the same name as the image, containing augmented images.
+
+```bash
+python img2img.py --api_url http://127.0.0.1:7860 --ann_file data/artpedia/artpedia.json --img_dir data/artpedia/images --out_dir data/artpedia/samples
+```
+
 ### Train
 Training is performed using the `fit` subcommand, followed by the path to the configuration file and other optional arguments.
 
@@ -136,10 +158,3 @@ python main.py test -c configs/config.yaml --ckpt_path path/to/ckpt.ckpt
 Here are the performance of the pretrained models on the Artpedia and ArtCap dataset. For additional results, please refer to the paper.
 
 ![](./resources/results.png)
-
-## TODOs
-- [x] Train on Artpedia
-- [x] Add BLEU, METEOR, ROUGE-L, CIDEr
-- [x] Handle validation loss calculation during generation
-- [x] Support BLIP
-- [x] Evaluate on other art datasets (ArtCap)
