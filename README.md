@@ -11,13 +11,13 @@ This is the official repository for the ICCV 2023 4th Workshop on e-Heritage pap
 If you find our work useful, we welcome citations:
 
 ```bibtex
-@misc{cioni2023diffusion,
-    title={Diffusion Based Augmentation for Captioning and Retrieval in Cultural Heritage},
-    author={Dario Cioni and Lorenzo Berlincioni and Federico Becattini and Alberto del Bimbo},
-    year={2023},
-    eprint={2308.07151},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
+@InProceedings{Cioni_2023_ICCV,
+    author    = {Cioni, Dario and Berlincioni, Lorenzo and Becattini, Federico and Del Bimbo, Alberto},
+    title     = {Diffusion Based Augmentation for Captioning and Retrieval in Cultural Heritage},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops},
+    month     = {October},
+    year      = {2023},
+    pages     = {1707-1716}
 }
 ```
 
