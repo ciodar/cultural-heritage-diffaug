@@ -2,7 +2,7 @@
 
 [![Conference](http://img.shields.io/badge/ICCV-2023-7395C5.svg)](https://iccv2023.thecvf.com)
 [![arXiv](https://img.shields.io/badge/arXiv%3A-2308.07151-B31B1B)](http://arxiv.org/abs/2308.07151)
-[![thecvf](https://img.shields.io/badge/pdf-thecvf-7395C5.svg)]([https://openaccess.thecvf.com/content/ICCV2023/papers/Liu_Multi-Modal_Neural_Radiance_Field_for_Monocular_Dense_SLAM_with_a_ICCV_2023_paper.pdf](https://openaccess.thecvf.com/content/ICCV2023W/e-Heritage/papers/Cioni_Diffusion_Based_Augmentation_for_Captioning_and_Retrieval_in_Cultural_Heritage_ICCVW_2023_paper.pdf))
+[![thecvf](https://img.shields.io/badge/pdf-thecvf-7395C5.svg)](https://openaccess.thecvf.com/content/ICCV2023W/e-Heritage/papers/Cioni_Diffusion_Based_Augmentation_for_Captioning_and_Retrieval_in_Cultural_Heritage_ICCVW_2023_paper.pdf)
 [![GitHub stars](https://img.shields.io/github/stars/ciodar/cultural-heritage-image2text?style=social)](#)
 [![PyTorch Lightning](https://img.shields.io/badge/PyTorch-Lightning-blueviolet)](#)
 
